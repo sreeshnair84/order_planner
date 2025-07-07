@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Clock, Mail, AlertCircle, CheckCircle, XCircle, RefreshCw, Edit, Send } from 'lucide-react';
+import { Clock, Mail, AlertCircle, CheckCircle, XCircle, RefreshCw, Edit, Send, X, Eye, ThumbsUp } from 'lucide-react';
 import { getApiUrl } from '../../utils/apiConfig';
 import ActionModal from './ActionModal';
 
@@ -11,6 +11,8 @@ const OrderProcessingDashboard = ({ orderId }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('tracking');
   const [selectedAction, setSelectedAction] = useState(null);
+  const [showEmailPreview, setShowEmailPreview] = useState(false);
+  const [selectedEmail, setSelectedEmail] = useState(null);
 
   const loadOrderData = useCallback(async () => {
     setIsLoading(true);
@@ -95,6 +97,86 @@ const OrderProcessingDashboard = ({ orderId }) => {
       console.error(`Error retriggering ${jobType}:`, error);
       alert(`Error retriggering ${jobType} job`);
     }
+  };
+
+  const handleApproveEmail = async (emailId) => {
+    try {
+      const response = await fetch(getApiUrl(`api/orders/${orderId}/emails/${emailId}/approve`), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (response.ok) {
+        await loadOrderData(); // Refresh data
+        alert('Email approved and sent successfully');
+      }
+    } catch (error) {
+      console.error('Error approving email:', error);
+      alert('Error approving email');
+    }
+  };
+
+  const handlePreviewEmail = (email) => {
+    setSelectedEmail(email);
+    setShowEmailPreview(true);
+  };
+
+  const renderEmailPreview = () => {
+    if (!selectedEmail) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-6 border-b">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium text-gray-900">Email Preview</h3>
+              <button
+                onClick={() => setShowEmailPreview(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="mt-2 text-sm text-gray-600">
+              <p><strong>To:</strong> {selectedEmail.recipient}</p>
+              <p><strong>Subject:</strong> {selectedEmail.subject}</p>
+              <p><strong>Type:</strong> {selectedEmail.email_type}</p>
+            </div>
+          </div>
+          <div className="p-6">
+            <div className="border rounded-lg p-4">
+              <div
+                dangerouslySetInnerHTML={{ __html: selectedEmail.body }}
+                className="prose prose-sm max-w-none"
+              />
+            </div>
+          </div>
+          <div className="p-6 border-t bg-gray-50 flex justify-end space-x-3">
+            <button
+              onClick={() => setShowEmailPreview(false)}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+            >
+              Close
+            </button>
+            {!selectedEmail.sent_at && (
+              <button
+                onClick={() => {
+                  handleApproveEmail(selectedEmail.id);
+                  setShowEmailPreview(false);
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700"
+              >
+                <ThumbsUp className="w-4 h-4 inline mr-2" />
+                Approve & Send
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const getStatusIcon = (status, category) => {
@@ -337,14 +419,24 @@ const OrderProcessingDashboard = ({ orderId }) => {
               </div>
               <div className="flex space-x-2">
                 <button
-                  onClick={() => setSelectedAction({ type: 'view_email', data: email })}
-                  className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                  onClick={() => handlePreviewEmail(email)}
+                  className="flex items-center space-x-1 px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
-                  View
+                  <Eye className="w-3 h-3" />
+                  <span>Preview</span>
                 </button>
+                {!email.sent_at && (
+                  <button
+                    onClick={() => handleApproveEmail(email.id)}
+                    className="flex items-center space-x-1 px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
+                  >
+                    <ThumbsUp className="w-3 h-3" />
+                    <span>Approve</span>
+                  </button>
+                )}
                 <button
                   onClick={() => setSelectedAction({ type: 'resend_email', data: email })}
-                  className="flex items-center space-x-1 px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
+                  className="flex items-center space-x-1 px-3 py-1 text-sm bg-purple-500 text-white rounded hover:bg-purple-600"
                 >
                   <Send className="w-3 h-3" />
                   <span>Resend</span>
@@ -483,6 +575,9 @@ const OrderProcessingDashboard = ({ orderId }) => {
           onSuccess={loadOrderData}
         />
       )}
+
+      {/* Email Preview Modal */}
+      {showEmailPreview && renderEmailPreview()}
     </div>
   );
 };

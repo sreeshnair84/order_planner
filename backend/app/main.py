@@ -54,6 +54,10 @@ app.include_router(management.router, prefix="/api/management", tags=["Managemen
 app.include_router(manufacturers.router, prefix="/api", tags=["Manufacturers"])
 app.include_router(email_management.router, prefix="/api", tags=["Email Management"])
 
+# Import and include analytics router
+from app.api import analytics
+app.include_router(analytics.router, prefix="/api/analytics", tags=["Analytics"])
+
 @app.get("/")
 async def root():
     return {"message": "Order Management System API", "version": "1.0.0"}

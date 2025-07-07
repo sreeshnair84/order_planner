@@ -16,7 +16,7 @@ router = APIRouter()
 # Enhanced Pydantic models with new status flow
 class TrackingEntry(BaseModel):
     id: str
-    status: str = Field(..., pattern="^(UPLOADED|PROCESSING|PENDING_INFO|INFO_RECEIVED|VALIDATED|TRIP_QUEUED|TRIP_PLANNED|SUBMITTED|CONFIRMED|IN_TRANSIT|DELIVERED|REJECTED|CANCELLED)$")
+    status: str = Field(..., pattern="^(UPLOADED|PROCESSING|PENDING_INFO|INFO_RECEIVED|VALIDATED|TRIP_QUEUED|TRIP_PLANNED|SUBMITTED|CONFIRMED|IN_TRANSIT|DELIVERED|REJECTED|CANCELLED|ORDER_PROCESSING_COMPLETED)$")
     message: Optional[str]
     details: Optional[str]
     created_at: datetime
@@ -29,7 +29,7 @@ class OrderTrackingResponse(BaseModel):
     trip_info: Optional[dict] = None
 
 class OrderStatusUpdate(BaseModel):
-    status: str = Field(..., pattern="^(UPLOADED|PROCESSING|PENDING_INFO|INFO_RECEIVED|VALIDATED|TRIP_QUEUED|TRIP_PLANNED|SUBMITTED|CONFIRMED|IN_TRANSIT|DELIVERED|REJECTED|CANCELLED)$")
+    status: str = Field(..., pattern="^(UPLOADED|PROCESSING|PENDING_INFO|INFO_RECEIVED|VALIDATED|TRIP_QUEUED|TRIP_PLANNED|SUBMITTED|CONFIRMED|IN_TRANSIT|DELIVERED|REJECTED|CANCELLED|ORDER_PROCESSING_COMPLETED)$")
     message: Optional[str] = None
     details: Optional[str] = None
 
@@ -45,6 +45,7 @@ VALID_STATUS_TRANSITIONS = {
     "SUBMITTED": ["CONFIRMED", "REJECTED"],
     "CONFIRMED": ["IN_TRANSIT"],
     "IN_TRANSIT": ["DELIVERED"],
+    "ORDER_PROCESSING_COMPLETED": ["DELIVERED", "REJECTED", "CANCELLED"],
     "DELIVERED": [],  # Final state
     "REJECTED": [],   # Final state
     "CANCELLED": []   # Final state

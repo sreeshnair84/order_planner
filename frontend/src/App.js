@@ -7,14 +7,8 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
-import UploadPage from './pages/UploadPage';
-import TrackingPage from './pages/TrackingPage';
-import TripPlanningPage from './pages/TripPlanningPage';
-import LogisticsDashboard from './pages/LogisticsDashboard';
-import OrderProcessingPage from './pages/OrderProcessingPage';
-import ManagementPage from './pages/ManagementPage';
-import ManufacturerManagement from './pages/ManufacturerManagement';
-import EmailManagement from './pages/EmailManagement';
+import OrderCreationPage from './pages/OrderCreationPage';
+import FMCGOrderAggregationPage from './pages/FMCGOrderAggregationPage';
 import './index.css';
 
 const queryClient = new QueryClient({
@@ -44,77 +38,31 @@ function App() {
                 }
               />
               <Route
-                path="/upload"
+                path="/order-creation"
                 element={
                   <ProtectedRoute>
-                    <UploadPage />
+                    <OrderCreationPage />
                   </ProtectedRoute>
                 }
               />
               <Route
-                path="/tracking"
+                path="/order-aggregation"
                 element={
                   <ProtectedRoute>
-                    <TrackingPage />
+                    <FMCGOrderAggregationPage />
                   </ProtectedRoute>
                 }
               />
-              <Route
-                path="/trip-planning"
-                element={
-                  <ProtectedRoute>
-                    <TripPlanningPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/logistics"
-                element={
-                  <ProtectedRoute>
-                    <LogisticsDashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/order-processing"
-                element={
-                  <ProtectedRoute>
-                    <OrderProcessingPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/order-processing/:orderId"
-                element={
-                  <ProtectedRoute>
-                    <OrderProcessingPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/management"
-                element={
-                  <ProtectedRoute>
-                    <ManagementPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/manufacturers"
-                element={
-                  <ProtectedRoute>
-                    <ManufacturerManagement />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/emails"
-                element={
-                  <ProtectedRoute>
-                    <EmailManagement />
-                  </ProtectedRoute>
-                }
-              />
+              {/* Legacy routes redirected to new consolidated pages */}
+              <Route path="/upload" element={<Navigate to="/order-creation" replace />} />
+              <Route path="/tracking" element={<Navigate to="/order-creation" replace />} />
+              <Route path="/order-processing" element={<Navigate to="/order-creation" replace />} />
+              <Route path="/order-processing/:orderId" element={<Navigate to="/order-creation" replace />} />
+              <Route path="/trip-planning" element={<Navigate to="/order-aggregation" replace />} />
+              <Route path="/logistics" element={<Navigate to="/order-aggregation" replace />} />
+              <Route path="/management" element={<Navigate to="/order-aggregation" replace />} />
+              <Route path="/manufacturers" element={<Navigate to="/order-aggregation" replace />} />
+              <Route path="/emails" element={<Navigate to="/order-aggregation" replace />} />
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
             </Routes>
             <Toaster

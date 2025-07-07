@@ -2,6 +2,23 @@ from pydantic import BaseModel, Field, EmailStr
 from typing import Optional, List
 from datetime import datetime
 
+# Simple reference schemas to avoid circular references
+class ManufacturerSimple(BaseModel):
+    id: int
+    name: str
+    code: str
+    
+    class Config:
+        from_attributes = True
+
+class RetailerSimple(BaseModel):
+    id: int
+    name: str
+    code: str
+    
+    class Config:
+        from_attributes = True
+
 # Base schemas
 class RetailerBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
@@ -37,7 +54,7 @@ class RetailerResponse(RetailerBase):
     id: int
     created_at: datetime
     updated_at: datetime
-    manufacturers: List['ManufacturerResponse'] = []
+    manufacturers: List[ManufacturerSimple] = []
 
     class Config:
         from_attributes = True
@@ -83,7 +100,7 @@ class ManufacturerResponse(ManufacturerBase):
     id: int
     created_at: datetime
     updated_at: datetime
-    retailers: List['RetailerResponse'] = []
+    retailers: List[RetailerSimple] = []
 
     class Config:
         from_attributes = True

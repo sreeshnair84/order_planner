@@ -82,6 +82,34 @@ class TripAnalyticsResponse(BaseModel):
     total_cost_savings: Decimal
     efficiency_metrics: Dict[str, Any]
 
+class DeliveryRouteResponse(BaseModel):
+    id: str
+    route_name: str
+    manufacturing_location_id: str
+    truck_id: Optional[str] = None
+    planned_date: Optional[date] = None
+    status: str
+    total_distance_km: Optional[float] = None
+    estimated_duration_hours: Optional[float] = None
+    capacity_utilization: Optional[float] = None
+    route_waypoints: Optional[Dict[str, Any]] = None
+    sku_count: int
+    total_weight_kg: Optional[float] = None
+    total_volume_m3: Optional[float] = None
+    optimization_score: Optional[float] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    # Related data
+    route_orders: List[Dict[str, Any]] = []
+    manufacturing_location: Optional[Dict[str, Any]] = None
+    truck: Optional[Dict[str, Any]] = None
+
+class DeliveryRouteListResponse(BaseModel):
+    routes: List[DeliveryRouteResponse]
+    total: int
+    page: int
+    per_page: int
+
 # Trip Route Optimization Endpoints
 @router.post("/optimize-routes", response_model=RouteOptimizationResponse)
 async def optimize_trip_routes(

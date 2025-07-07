@@ -47,10 +47,10 @@ const RetailerManagement = () => {
     try {
       const [retailersResponse, manufacturersResponse] = await Promise.all([
         fetch('/api/management/retailers', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
         }),
         fetch('/api/management/manufacturers/dropdown', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
         })
       ]);
 
@@ -81,7 +81,7 @@ const RetailerManagement = () => {
         method: editingRetailer ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         },
         body: JSON.stringify(formData)
       });
@@ -124,7 +124,7 @@ const RetailerManagement = () => {
     try {
       const response = await fetch(`/api/management/retailers/${retailerId}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
       });
 
       if (response.ok) {

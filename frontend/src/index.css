@@ -64,15 +64,23 @@
   }
   
   .btn-primary {
-    @apply bg-blue-600 text-white hover:bg-blue-700;
+    @apply bg-blue-600 text-white hover:bg-blue-700 px-4 py-2;
   }
   
   .btn-secondary {
-    @apply bg-gray-200 text-gray-900 hover:bg-gray-300;
+    @apply bg-gray-200 text-gray-900 hover:bg-gray-300 px-4 py-2;
   }
   
   .btn-danger {
-    @apply bg-red-600 text-white hover:bg-red-700;
+    @apply bg-red-600 text-white hover:bg-red-700 px-4 py-2;
+  }
+
+  .btn-success {
+    @apply bg-green-600 text-white hover:bg-green-700 px-4 py-2;
+  }
+
+  .btn-warning {
+    @apply bg-yellow-600 text-white hover:bg-yellow-700 px-4 py-2;
   }
   
   .card {
@@ -121,5 +129,210 @@
   
   .status-rejected {
     @apply bg-red-100 text-red-800;
+  }
+
+  /* New Professional UI Components */
+  .tab-button {
+    @apply flex items-center py-2 px-1 border-b-2 font-medium text-sm transition-colors;
+  }
+
+  .tab-button-active {
+    @apply border-blue-500 text-blue-600;
+  }
+
+  .tab-button-inactive {
+    @apply border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300;
+  }
+
+  .metric-card {
+    @apply bg-white overflow-hidden shadow-sm rounded-lg p-5;
+  }
+
+  .metric-icon {
+    @apply h-8 w-8 text-white;
+  }
+
+  .metric-value {
+    @apply text-lg font-medium text-gray-900;
+  }
+
+  .metric-label {
+    @apply text-sm font-medium text-gray-500 truncate;
+  }
+
+  .search-input {
+    @apply block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500;
+  }
+
+  .filter-select {
+    @apply border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500;
+  }
+
+  .action-button {
+    @apply inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors;
+  }
+
+  .primary-button {
+    @apply inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors;
+  }
+
+  .sidebar-link {
+    @apply flex items-center px-4 py-2.5 mx-3 my-1 text-sm font-medium rounded-lg transition-colors;
+  }
+
+  .sidebar-link-active {
+    @apply bg-blue-50 text-blue-700;
+  }
+
+  .sidebar-link-inactive {
+    @apply text-gray-700 hover:bg-gray-100 hover:text-gray-900;
+  }
+
+  .dropdown-menu {
+    @apply origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none;
+  }
+
+  .dropdown-item {
+    @apply block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors;
+  }
+
+  .notification-badge {
+    @apply absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white;
+  }
+
+  .loading-spinner {
+    @apply inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-current;
+  }
+
+  .empty-state {
+    @apply text-center py-8;
+  }
+
+  .empty-state-icon {
+    @apply h-12 w-12 text-gray-400 mx-auto mb-4;
+  }
+
+  .empty-state-message {
+    @apply text-sm text-gray-500;
+  }
+
+  .page-header {
+    @apply sm:flex sm:items-center sm:justify-between;
+  }
+
+  .page-title {
+    @apply text-2xl font-semibold text-gray-900;
+  }
+
+  .page-description {
+    @apply mt-2 text-sm text-gray-700;
+  }
+
+  .stats-grid {
+    @apply grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4;
+  }
+
+  .chart-grid {
+    @apply grid grid-cols-1 gap-6 lg:grid-cols-2;
+  }
+
+  .full-width-chart {
+    @apply lg:col-span-2;
+  }
+
+  .data-table {
+    @apply min-w-full divide-y divide-gray-200;
+  }
+
+  .data-table-header {
+    @apply bg-gray-50;
+  }
+
+  .data-table-body {
+    @apply bg-white divide-y divide-gray-200;
+  }
+
+  .data-table-row {
+    @apply hover:bg-gray-50 transition-colors;
+  }
+
+  .table-header {
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+  }
+
+  .table-cell {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+  }
+
+  .avatar {
+    @apply rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold;
+  }
+
+  .avatar-sm {
+    @apply h-8 w-8 text-sm;
+  }
+
+  .avatar-md {
+    @apply h-10 w-10 text-base;
+  }
+
+  .system-status {
+    @apply bg-blue-50 text-blue-700 px-3 py-3 rounded-lg;
+  }
+
+  .status-indicator {
+    @apply h-2.5 w-2.5 rounded-full;
+  }
+
+  .status-online {
+    @apply bg-green-500;
+  }
+
+  .drag-drop-zone {
+    @apply border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors;
+  }
+
+  .drag-drop-active {
+    @apply border-blue-400 bg-blue-50;
+  }
+
+  .drag-drop-inactive {
+    @apply border-gray-300 hover:border-blue-400;
+  }
+
+  .analytics-card {
+    @apply bg-white rounded-lg shadow-sm p-6;
+  }
+
+  .analytics-header {
+    @apply flex items-center justify-between mb-4;
+  }
+
+  .analytics-title {
+    @apply text-lg font-medium text-gray-900;
+  }
+
+  .aggregation-summary {
+    @apply bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200;
+  }
+
+  .aggregation-title {
+    @apply text-lg font-semibold text-blue-900 mb-2;
+  }
+
+  .feature-card {
+    @apply bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow;
+  }
+
+  .feature-icon {
+    @apply h-8 w-8 text-blue-600 mb-4;
+  }
+
+  .feature-title {
+    @apply text-lg font-semibold text-gray-900 mb-2;
+  }
+
+  .feature-description {
+    @apply text-sm text-gray-600;
   }
 }

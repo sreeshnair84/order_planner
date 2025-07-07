@@ -92,4 +92,95 @@ export const orderService = {
       throw error.response?.data || error.message;
     }
   },
+
+  // Enhanced order processing endpoints
+  async getProcessingStatus(orderId) {
+    try {
+      const response = await api.get(`/orders/${orderId}/processing-status`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  async getProcessingSteps(orderId) {
+    try {
+      const response = await api.get(`/orders/${orderId}/processing-steps`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  async getOrderEmails(orderId) {
+    try {
+      const response = await api.get(`/orders/${orderId}/emails`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  async getUserActions(orderId) {
+    try {
+      const response = await api.get(`/orders/${orderId}/user-actions`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  async sendOrderEmail(orderId, emailData) {
+    try {
+      const response = await api.post(`/orders/${orderId}/send-email`, emailData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  async approveEmail(orderId, emailId) {
+    try {
+      const response = await api.post(`/orders/${orderId}/emails/${emailId}/approve`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  async correctMissingInfo(orderId, corrections) {
+    try {
+      const response = await api.post(`/orders/${orderId}/correct-info`, corrections);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  async regenerateEmail(orderId, emailType = 'missing_info') {
+    try {
+      const response = await api.post(`/orders/${orderId}/regenerate-email`, { email_type: emailType });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  async retryStep(orderId, stepId) {
+    try {
+      const response = await api.post(`/orders/${orderId}/retry-step`, { step: stepId });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  async getValidationSummary(orderId) {
+    try {
+      const response = await api.get(`/orders/${orderId}/validation-summary`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 };

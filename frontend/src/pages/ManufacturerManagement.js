@@ -37,12 +37,19 @@ const ManufacturerManagement = () => {
   const fetchManufacturers = async () => {
     try {
       const response = await fetch('/api/manufacturers', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
-      setManufacturers(data);
+      // Ensure data is an array
+      setManufacturers(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching manufacturers:', error);
+      setManufacturers([]); // Set to empty array on error
     } finally {
       setLoading(false);
     }
@@ -50,20 +57,28 @@ const ManufacturerManagement = () => {
 
   const fetchRetailers = async () => {
     try {
-      const response = await fetch('/api/retailers', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      const response = await fetch('/api/management/retailers', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
-      setRetailers(data);
+      // Handle both paginated and direct array responses
+      const retailersData = data.retailers || data;
+      setRetailers(Array.isArray(retailersData) ? retailersData : []);
     } catch (error) {
       console.error('Error fetching retailers:', error);
+      setRetailers([]); // Set to empty array on error
     }
   };
 
   const fetchManufacturerOrders = async (manufacturerId) => {
     try {
       const response = await fetch(`/api/manufacturers/${manufacturerId}/orders`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
       });
       const data = await response.json();
       setManufacturerOrders(data);
@@ -84,7 +99,7 @@ const ManufacturerManagement = () => {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         },
         body: JSON.stringify(formData)
       });
@@ -139,7 +154,7 @@ const ManufacturerManagement = () => {
       try {
         const response = await fetch(`/api/manufacturers/${id}`, {
           method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
         });
         if (response.ok) {
           fetchManufacturers();
@@ -154,7 +169,7 @@ const ManufacturerManagement = () => {
     try {
       const response = await fetch(`/api/manufacturers/${manufacturerId}/assign-retailer/${retailerId}`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
       });
       if (response.ok) {
         fetchManufacturers();
@@ -169,7 +184,7 @@ const ManufacturerManagement = () => {
     try {
       const response = await fetch(`/api/manufacturers/${manufacturerId}/unassign-retailer/${retailerId}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
       });
       if (response.ok) {
         fetchManufacturers();

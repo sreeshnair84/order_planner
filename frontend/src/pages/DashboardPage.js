@@ -3,6 +3,7 @@ import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { orderService } from '../services/orderService';
+import { analyticsService } from '../services/analyticsService';
 import Layout from '../components/common/Layout';
 import { 
   Upload, 
@@ -19,7 +20,7 @@ import {
 const DashboardPage = () => {
   const { user } = useAuth();
 
-  const { data: ordersData, isLoading } = useQuery(
+  const { data: ordersData, isLoading: ordersLoading } = useQuery(
     'orders',
     () => orderService.getOrders({ page: 1, per_page: 10 }),
     {
@@ -27,7 +28,24 @@ const DashboardPage = () => {
     }
   );
 
+  const { data: dashboardStats, isLoading: statsLoading } = useQuery(
+    'dashboard-stats',
+    () => analyticsService.getDashboardStats(30),
+    {
+      refetchInterval: 60000, // Refresh every minute
+    }
+  );
+
+  const { data: systemMetrics, isLoading: metricsLoading } = useQuery(
+    'system-metrics',
+    () => analyticsService.getPerformanceMetrics(30),
+    {
+      refetchInterval: 300000, // Refresh every 5 minutes
+    }
+  );
+
   const orders = ordersData?.orders || [];
+  const isLoading = ordersLoading || statsLoading;
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -70,25 +88,25 @@ const DashboardPage = () => {
   const stats = [
     {
       name: 'Total Orders',
-      value: orders.length,
+      value: dashboardStats?.total_orders || 0,
       icon: Package,
       color: 'bg-blue-500',
     },
     {
       name: 'Processing',
-      value: orders.filter(o => o.status === 'PROCESSING').length,
+      value: dashboardStats?.processing_orders || 0,
       icon: Clock,
       color: 'bg-yellow-500',
     },
     {
       name: 'Completed',
-      value: orders.filter(o => o.status === 'DELIVERED').length,
+      value: dashboardStats?.completed_orders || 0,
       icon: CheckCircle,
       color: 'bg-green-500',
     },
     {
       name: 'Pending Info',
-      value: orders.filter(o => o.status === 'PENDING_INFO').length,
+      value: dashboardStats?.pending_info_orders || 0,
       icon: AlertCircle,
       color: 'bg-orange-500',
     },
@@ -108,11 +126,11 @@ const DashboardPage = () => {
           </div>
           <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
             <Link
-              to="/upload"
+              to="/order-creation"
               className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               <Upload className="h-4 w-4 mr-2" />
-              Upload Order
+              Create Order
             </Link>
           </div>
         </div>
@@ -147,34 +165,27 @@ const DashboardPage = () => {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-medium text-gray-900">Quick Actions</h2>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Link
-              to="/upload"
+              to="/order-creation"
               className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               <Upload className="h-5 w-5 mr-2 text-blue-600" />
-              Upload Order
+              Create Orders
             </Link>
             <Link
-              to="/order-processing"
+              to="/order-aggregation"
               className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               <Settings className="h-5 w-5 mr-2 text-green-600" />
-              Process Orders
+              FMCG Aggregation
             </Link>
             <Link
-              to="/trip-planning"
+              to="/order-creation"
               className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
-              <MapPin className="h-5 w-5 mr-2 text-purple-600" />
-              Plan Trips
-            </Link>
-            <Link
-              to="/management"
-              className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              <Building className="h-5 w-5 mr-2 text-yellow-600" />
-              Manage Data
+              <Package className="h-5 w-5 mr-2 text-purple-600" />
+              Track Orders
             </Link>
           </div>
         </div>
@@ -184,7 +195,7 @@ const DashboardPage = () => {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-medium text-gray-900">Recent Orders</h2>
             <Link
-              to="/tracking"
+              to="/order-creation"
               className="text-sm font-medium text-blue-600 hover:text-blue-500"
             >
               View all
@@ -285,7 +296,7 @@ const DashboardPage = () => {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-medium text-gray-900">System Status</h2>
             <Link
-              to="/logistics"
+              to="/fmcg-aggregation"
               className="text-sm font-medium text-blue-600 hover:text-blue-500"
             >
               View Analytics
@@ -299,7 +310,9 @@ const DashboardPage = () => {
                 </div>
                 <div className="ml-3">
                   <p className="text-sm font-medium text-green-800">Processing Engine</p>
-                  <p className="text-xs text-green-600">Online</p>
+                  <p className="text-xs text-green-600">
+                    {systemMetrics?.system_uptime ? `${systemMetrics.system_uptime}% Uptime` : 'Online'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -309,8 +322,10 @@ const DashboardPage = () => {
                   <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-green-800">Email Service</p>
-                  <p className="text-xs text-green-600">Active</p>
+                  <p className="text-sm font-medium text-green-800">Order Accuracy</p>
+                  <p className="text-xs text-green-600">
+                    {systemMetrics?.order_accuracy ? `${systemMetrics.order_accuracy}%` : 'Active'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -320,8 +335,10 @@ const DashboardPage = () => {
                   <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-green-800">Trip Optimizer</p>
-                  <p className="text-xs text-green-600">Ready</p>
+                  <p className="text-sm font-medium text-green-800">Delivery Performance</p>
+                  <p className="text-xs text-green-600">
+                    {systemMetrics?.on_time_delivery_rate ? `${systemMetrics.on_time_delivery_rate}%` : 'Ready'}
+                  </p>
                 </div>
               </div>
             </div>
