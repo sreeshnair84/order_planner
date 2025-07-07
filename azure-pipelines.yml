@@ -1,0 +1,168 @@
+trigger:
+- main
+- develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  pythonVersion: '3.11'
+  nodeVersion: '18'
+  azureFunctionAppPackagePath: './backend_azure_functions'
+  azureWebAppPackagePath: './frontend'
+
+stages:
+- stage: Build
+  displayName: 'Build and Test'
+  jobs:
+  - job: BuildBackend
+    displayName: 'Build Backend'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(pythonVersion)'
+      displayName: 'Use Python $(pythonVersion)'
+    
+    - script: |
+        cd backend
+        pip install -r requirements.txt
+        pip install pytest pytest-asyncio httpx
+      displayName: 'Install dependencies'
+    
+    - script: |
+        cd backend
+        python -m pytest tests/ -v
+      displayName: 'Run tests'
+    
+    - task: ArchiveFiles@2
+      displayName: 'Archive backend files'
+      inputs:
+        rootFolderOrFile: '$(azureFunctionAppPackagePath)'
+        includeRootFolder: false
+        archiveType: zip
+        archiveFile: $(Build.ArtifactStagingDirectory)/backend-$(Build.BuildId).zip
+        replaceExistingArchive: true
+    
+    - publish: $(Build.ArtifactStagingDirectory)/backend-$(Build.BuildId).zip
+      artifact: backend
+
+  - job: BuildFrontend
+    displayName: 'Build Frontend'
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '$(nodeVersion)'
+      displayName: 'Use Node.js $(nodeVersion)'
+    
+    - script: |
+        cd frontend
+        npm ci
+      displayName: 'Install dependencies'
+    
+    - script: |
+        cd frontend
+        npm test -- --coverage --watchAll=false
+      displayName: 'Run tests'
+    
+    - script: |
+        cd frontend
+        npm run build
+      displayName: 'Build React app'
+      env:
+        REACT_APP_API_URL: https://$(functionAppName).azurewebsites.net/api
+    
+    - task: ArchiveFiles@2
+      displayName: 'Archive frontend files'
+      inputs:
+        rootFolderOrFile: 'frontend/build'
+        includeRootFolder: false
+        archiveType: zip
+        archiveFile: $(Build.ArtifactStagingDirectory)/frontend-$(Build.BuildId).zip
+        replaceExistingArchive: true
+    
+    - publish: $(Build.ArtifactStagingDirectory)/frontend-$(Build.BuildId).zip
+      artifact: frontend
+
+- stage: Infrastructure
+  displayName: 'Deploy Infrastructure'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - deployment: DeployInfrastructure
+    displayName: 'Deploy Infrastructure'
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          
+          - task: TerraformInstaller@0
+            displayName: 'Install Terraform'
+            inputs:
+              terraformVersion: '1.6.0'
+          
+          - task: AzureCLI@2
+            displayName: 'Deploy Infrastructure'
+            inputs:
+              azureSubscription: '$(azureServiceConnection)'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                cd terraform
+                terraform init
+                terraform fmt
+                terraform validate
+                terraform plan -out=tfplan
+                terraform apply -auto-approve tfplan
+                
+                # Set output variables
+                echo "##vso[task.setvariable variable=functionAppName;isOutput=true]$(terraform output -raw function_app_name)"
+                echo "##vso[task.setvariable variable=webAppName;isOutput=true]$(terraform output -raw web_app_name)"
+                echo "##vso[task.setvariable variable=resourceGroupName;isOutput=true]$(terraform output -raw resource_group_name)"
+            env:
+              TF_VAR_postgres_admin_password: $(postgresAdminPassword)
+              TF_VAR_sendgrid_api_key: $(sendgridApiKey)
+              TF_VAR_jwt_secret: $(jwtSecret)
+
+- stage: Deploy
+  displayName: 'Deploy Applications'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - deployment: DeployBackend
+    displayName: 'Deploy Backend'
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: backend
+          
+          - task: AzureFunctionApp@1
+            displayName: 'Deploy Azure Function App'
+            inputs:
+              azureSubscription: '$(azureServiceConnection)'
+              appType: 'functionAppLinux'
+              appName: '$(functionAppName)'
+              package: '$(Pipeline.Workspace)/backend/backend-$(Build.BuildId).zip'
+              runtimeStack: 'PYTHON|3.11'
+
+  - deployment: DeployFrontend
+    displayName: 'Deploy Frontend'
+    dependsOn: DeployBackend
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: frontend
+          
+          - task: AzureWebApp@1
+            displayName: 'Deploy Azure Web App'
+            inputs:
+              azureSubscription: '$(azureServiceConnection)'
+              appType: 'webAppLinux'
+              appName: '$(webAppName)'
+              package: '$(Pipeline.Workspace)/frontend/frontend-$(Build.BuildId).zip'
+              runtimeStack: 'NODE|18-lts'

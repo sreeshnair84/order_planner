@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+
+# Virtual environments
+env/
+venv/
+ENV/
+.venv/
+.env/
+
+# Editor files
+*.swp
+*.swo
+*.bak
+*.tmp
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# Test and coverage
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+
+# Node (if present)
+node_modules/
+
+# Misc
+*.egg-info/
+dist/
+build/

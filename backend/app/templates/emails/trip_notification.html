@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background-color: #f5f5f5; 
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background-color: white; 
+            padding: 30px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        .header { 
+            background-color: #10b981; 
+            color: white; 
+            padding: 20px; 
+            border-radius: 8px 8px 0 0; 
+            margin: -30px -30px 20px -30px; 
+        }
+        .trip-info { 
+            background-color: #f0f9ff; 
+            border: 1px solid #0ea5e9; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin: 20px 0; 
+        }
+        .status-timeline { 
+            margin: 20px 0; 
+        }
+        .footer { 
+            margin-top: 30px; 
+            padding-top: 20px; 
+            border-top: 1px solid #ddd; 
+            color: #666; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Trip Assigned to Your Order</h2>
+            <p>Order: {{ order_number }}</p>
+        </div>
+        
+        <p>Dear Customer,</p>
+        
+        <p>Great news! Your order has been assigned to a delivery trip and is being prepared for shipment.</p>
+        
+        <div class="trip-info">
+            <h3>Trip Details:</h3>
+            <ul>
+                <li><strong>Trip ID:</strong> {{ trip_data.trip_id }}</li>
+                <li><strong>Trip Status:</strong> {{ trip_data.trip_status }}</li>
+                {% if trip_data.estimated_delivery_date %}
+                <li><strong>Estimated Delivery:</strong> {{ trip_data.estimated_delivery_date }}</li>
+                {% endif %}
+                {% if trip_data.driver_name %}
+                <li><strong>Driver:</strong> {{ trip_data.driver_name }}</li>
+                {% endif %}
+                {% if trip_data.driver_contact %}
+                <li><strong>Driver Contact:</strong> {{ trip_data.driver_contact }}</li>
+                {% endif %}
+            </ul>
+        </div>
+        
+        <div class="status-timeline">
+            <h3>What's Next:</h3>
+            <ol>
+                <li>Your order will be loaded onto the delivery vehicle</li>
+                <li>You'll receive a notification when the trip is dispatched</li>
+                <li>Track your delivery in real-time once in transit</li>
+                <li>Prepare to receive your order on the estimated delivery date</li>
+            </ol>
+        </div>
+        
+        <p>You can track your order status anytime by logging into your account or clicking the link below:</p>
+        <p><a href="#" style="color: #3b82f6;">Track Order Status</a></p>
+        
+        <div class="footer">
+            <p>Best regards,<br>
+            Order Management Team<br>
+            <small>This is an automated message. Please do not reply directly to this email.</small></p>
+        </div>
+    </div>
+</body>
+</html>

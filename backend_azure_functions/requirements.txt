@@ -1,0 +1,35 @@
+# Azure Functions Python requirements
+azure-functions==1.18.0
+azure-functions-worker==1.0.0
+
+# FastAPI and dependencies
+fastapi==0.104.1
+uvicorn==0.24.0
+python-multipart==0.0.6
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-dotenv==1.0.0
+
+# Database
+asyncpg==0.29.0
+sqlalchemy==2.0.23
+alembic==1.13.1
+
+# Redis
+redis==5.0.1
+
+# Email
+sendgrid==6.10.0
+
+# File processing
+pandas==2.1.4
+openpyxl==3.1.2
+xlrd==2.0.1
+
+# Authentication
+python-jose==3.3.0
+bcrypt==4.1.2
+
+# Other utilities
+pydantic==2.5.2
+pydantic-settings==2.1.0

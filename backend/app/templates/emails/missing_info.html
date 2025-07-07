@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missing Information Required</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: #dc3545;
+            margin: 0;
+            font-size: 24px;
+        }
+        .order-info {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .missing-fields {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .missing-fields h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+        .missing-fields ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .missing-fields li {
+            margin: 5px 0;
+            color: #856404;
+        }
+        .urgent {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .urgent p {
+            color: #721c24;
+            font-weight: bold;
+            margin: 0;
+        }
+        .actions {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .actions h3 {
+            color: #0c5460;
+            margin-top: 0;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        .footer p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .validation-score {
+            font-size: 18px;
+            font-weight: bold;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚨 Missing Information Required</h1>
+        <p>Your order needs attention before we can process it</p>
+    </div>
+
+    <div class="order-info">
+        <h2>Order Details</h2>
+        <p><strong>Order Number:</strong> {{ order.order_number }}</p>
+        <p><strong>Order ID:</strong> {{ order.id }}</p>
+        <p><strong>Current Status:</strong> {{ order.status }}</p>
+        <p><strong>Date:</strong> {{ generated_at }}</p>
+        {% if validation_result.validation_score %}
+        <p><strong>Validation Score:</strong> <span class="validation-score">{{ "%.1f"|format(validation_result.validation_score * 100) }}%</span></p>
+        {% endif %}
+    </div>
+
+    <p>Dear Customer,</p>
+    
+    <p>We are processing your order but have identified missing information that is required to complete the process.</p>
+
+    {% if validation_result.missing_fields %}
+    <div class="missing-fields">
+        <h3>📋 Missing Information:</h3>
+        <ul>
+        {% for field in validation_result.missing_fields %}
+            <li>{{ field }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if validation_result.validation_score < 0.5 %}
+    <div class="urgent">
+        <p>⚠️ This order requires immediate attention due to multiple missing fields.</p>
+    </div>
+    {% endif %}
+
+    {% if validation_result.data_quality_issues %}
+    <div class="missing-fields">
+        <h3>⚠️ Data Quality Issues:</h3>
+        <ul>
+        {% for issue in validation_result.data_quality_issues %}
+            <li>{{ issue }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if validation_result.business_rule_violations %}
+    <div class="missing-fields">
+        <h3>🚫 Business Rule Violations:</h3>
+        <ul>
+        {% for violation in validation_result.business_rule_violations %}
+            <li>{{ violation }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="actions">
+        <h3>🎯 What You Need To Do:</h3>
+        <ol>
+            <li>Review the missing information listed above</li>
+            <li>Gather the required data and documents</li>
+            <li>Reply to this email with the missing information</li>
+            <li>Or contact our support team for assistance</li>
+        </ol>
+    </div>
+
+    <p>Please provide the missing information at your earliest convenience to avoid delays in processing your order.</p>
+
+    <p>You can reply to this email or contact our support team at <a href="mailto:{{ support_email }}">{{ support_email }}</a>.</p>
+
+    <div class="footer">
+        <p>Best regards,<br><strong>{{ company_name }} Team</strong></p>
+        <p>This is an automated message generated by our order processing system.</p>
+        <p>Order ID: {{ order.id }} | Generated: {{ generated_at }}</p>
+    </div>
+</body>
+</html>

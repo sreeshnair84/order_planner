@@ -1,0 +1,216 @@
+name: Deploy Order Management System to Azure
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+
+env:
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: './backend_azure_functions'
+  AZURE_WEBAPP_PACKAGE_PATH: './frontend'
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # Infrastructure deployment
+  infrastructure:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      function-app-name: ${{ steps.tf-output.outputs.function-app-name }}
+      web-app-name: ${{ steps.tf-output.outputs.web-app-name }}
+      resource-group-name: ${{ steps.tf-output.outputs.resource-group-name }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.6.0
+        terraform_wrapper: false
+    
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Terraform Init
+      run: |
+        cd terraform
+        terraform init
+    
+    - name: Terraform Format
+      run: |
+        cd terraform
+        terraform fmt -check
+    
+    - name: Terraform Validate
+      run: |
+        cd terraform
+        terraform validate
+    
+    - name: Terraform Plan
+      run: |
+        cd terraform
+        terraform plan -out=tfplan
+      env:
+        TF_VAR_postgres_admin_password: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
+        TF_VAR_sendgrid_api_key: ${{ secrets.SENDGRID_API_KEY }}
+        TF_VAR_jwt_secret: ${{ secrets.JWT_SECRET }}
+    
+    - name: Terraform Apply
+      run: |
+        cd terraform
+        terraform apply -auto-approve tfplan
+    
+    - name: Get Terraform Outputs
+      id: tf-output
+      run: |
+        cd terraform
+        echo "function-app-name=$(terraform output -raw function_app_name)" >> $GITHUB_OUTPUT
+        echo "web-app-name=$(terraform output -raw web_app_name)" >> $GITHUB_OUTPUT
+        echo "resource-group-name=$(terraform output -raw resource_group_name)" >> $GITHUB_OUTPUT
+
+  # Backend deployment
+  deploy-backend:
+    needs: infrastructure
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Prepare Azure Functions deployment
+      run: |
+        # Copy backend code to Azure Functions directory
+        cp -r backend/app backend_azure_functions/
+        cp backend/requirements.txt backend_azure_functions/
+        
+        # Create deployment package
+        cd backend_azure_functions
+        zip -r function-app.zip . -x "*.git*" "*.env*" "__pycache__/*" "*.pyc"
+    
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Deploy to Azure Functions
+      run: |
+        az functionapp deployment source config-zip \
+          --resource-group ${{ needs.infrastructure.outputs.resource-group-name }} \
+          --name ${{ needs.infrastructure.outputs.function-app-name }} \
+          --src backend_azure_functions/function-app.zip
+
+  # Frontend deployment
+  deploy-frontend:
+    needs: [infrastructure, deploy-backend]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm ci
+    
+    - name: Build React app
+      run: |
+        cd frontend
+        npm run build
+      env:
+        REACT_APP_API_URL: https://${{ needs.infrastructure.outputs.function-app-name }}.azurewebsites.net/api
+    
+    - name: Create deployment package
+      run: |
+        cd frontend
+        zip -r build.zip build/
+    
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Deploy to Azure Web App
+      run: |
+        az webapp deployment source config-zip \
+          --resource-group ${{ needs.infrastructure.outputs.resource-group-name }} \
+          --name ${{ needs.infrastructure.outputs.web-app-name }} \
+          --src frontend/build.zip
+
+  # Test jobs for PRs
+  test-backend:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        cd backend
+        pip install -r requirements.txt
+        pip install pytest pytest-asyncio httpx
+    
+    - name: Run tests
+      run: |
+        cd backend
+        python -m pytest tests/ -v
+
+  test-frontend:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm ci
+    
+    - name: Run tests
+      run: |
+        cd frontend
+        npm test -- --coverage --watchAll=false
+    
+    - name: Build test
+      run: |
+        cd frontend
+        npm run build
