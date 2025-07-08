@@ -64,6 +64,17 @@ async def get_retailers(
         per_page=per_page
     )
 
+@router.get("/retailers/dropdown")
+async def get_retailers_dropdown(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get simplified list of retailers for dropdown menus."""
+    query = select(Retailer).where(Retailer.is_active == True)
+    result = await db.execute(query)
+    retailers = result.scalars().all()
+    return [{"id": r.id, "name": r.name, "code": r.code} for r in retailers]
+
 @router.get("/retailers/{retailer_id}", response_model=RetailerResponse)
 async def get_retailer(
     retailer_id: int,
@@ -235,6 +246,17 @@ async def get_manufacturers(
         page=page,
         per_page=per_page
     )
+
+@router.get("/manufacturers/dropdown")
+async def get_manufacturers_dropdown(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get simplified list of manufacturers for dropdown menus."""
+    query = select(Manufacturer).where(Manufacturer.is_active == True)
+    result = await db.execute(query)
+    manufacturers = result.scalars().all()
+    return [{"id": m.id, "name": m.name, "code": m.code} for m in manufacturers]
 
 @router.get("/manufacturers/{manufacturer_id}", response_model=ManufacturerResponse)
 async def get_manufacturer(
@@ -517,27 +539,9 @@ async def delete_route(
     return {"message": "Route deleted successfully"}
 
 # Utility endpoints for dropdown lists
-@router.get("/retailers/dropdown")
-async def get_retailers_dropdown(
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Get simplified list of retailers for dropdown menus."""
-    query = select(Retailer).where(Retailer.is_active == True)
-    result = await db.execute(query)
-    retailers = result.scalars().all()
-    return [{"id": r.id, "name": r.name, "code": r.code} for r in retailers]
 
-@router.get("/manufacturers/dropdown")
-async def get_manufacturers_dropdown(
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Get simplified list of manufacturers for dropdown menus."""
-    query = select(Manufacturer).where(Manufacturer.is_active == True)
-    result = await db.execute(query)
-    manufacturers = result.scalars().all()
-    return [{"id": m.id, "name": m.name, "code": m.code} for m in manufacturers]
+
+
 
 @router.get("/routes/dropdown")
 async def get_routes_dropdown(

@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-07-08T11:13:47.571433",
+  "results": {
+    "packages": true,
+    "environment": false,
+    "database": false,
+    "agent_init": false,
+    "function_tools": false,
+    "conversation": false,
+    "fallback": false
+  },
+  "summary": "1/7 tests passed"
+}

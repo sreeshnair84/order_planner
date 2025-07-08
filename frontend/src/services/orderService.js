@@ -75,6 +75,47 @@ export const orderService = {
     }
   },
 
+  async getEmailCommunications(orderId) {
+    try {
+      const response = await api.get(`/orders/${orderId}/emails`);
+      return response.data;
+    } catch (error) {
+      // Fallback to empty array if endpoint doesn't exist yet
+      console.warn('Email communications endpoint not available:', error.message);
+      return { data: [] };
+    }
+  },
+
+  async uploadCorrection(file, originalOrderId, correctionType, referenceEmailId) {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('original_order_id', originalOrderId);
+      formData.append('correction_type', correctionType);
+      formData.append('reference_email_id', referenceEmailId);
+
+      const response = await api.post('/orders/upload-correction', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  async downloadOriginalFile(orderId) {
+    try {
+      const response = await api.get(`/orders/${orderId}/download-original`, {
+        responseType: 'blob',
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   async getAllOrdersTracking() {
     try {
       const response = await api.get('/tracking');
@@ -178,6 +219,37 @@ export const orderService = {
   async getValidationSummary(orderId) {
     try {
       const response = await api.get(`/orders/${orderId}/validation-summary`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // New order processing methods
+  async reprocessOrder(orderId, newOrderId = null) {
+    try {
+      const payload = newOrderId ? { new_order_id: newOrderId } : {};
+      const response = await api.post(`/orders/${orderId}/reprocess`, payload);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  async correctOrder(orderId, corrections) {
+    try {
+      const response = await api.post(`/orders/${orderId}/correct`, corrections);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  async downloadOrderReport(orderId, format = 'pdf') {
+    try {
+      const response = await api.get(`/orders/${orderId}/download?format=${format}`, {
+        responseType: 'blob'
+      });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

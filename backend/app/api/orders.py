@@ -8,6 +8,7 @@ from datetime import datetime
 import aiofiles
 import os
 import uuid
+import logging
 from app.database.connection import get_db
 from app.models.user import User
 from app.models.order import Order
@@ -24,8 +25,104 @@ from app.api.auth import get_current_user
 from app.services.file_processor import FileProcessor
 from app.services.sku_service import SKUService
 from app.utils.config import settings
+from agents.order_processing_assistant_v2 import process_order_with_assistant
+
+# Azure Blob upload utility
+from app.services.azure_blob_service import AzureBlobService
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
+
+# Debug endpoint to check Azure configuration
+@router.get("/debug/azure-config")
+async def debug_azure_config():
+    """Debug endpoint to check Azure configuration"""
+    return {
+        "azure_storage_connection_string_configured": bool(settings.AZURE_STORAGE_CONNECTION_STRING),
+        "azure_storage_container": settings.AZURE_STORAGE_CONTAINER,
+        "connection_string_preview": settings.AZURE_STORAGE_CONNECTION_STRING[:50] + "..." if settings.AZURE_STORAGE_CONNECTION_STRING else None,
+        "connection_string_length": len(settings.AZURE_STORAGE_CONNECTION_STRING) if settings.AZURE_STORAGE_CONNECTION_STRING else 0,
+        "contains_test_key": "your-account-key" in (settings.AZURE_STORAGE_CONNECTION_STRING or "")
+    }
+
+# Test Azure blob service endpoint
+@router.post("/debug/test-azure-upload")
+async def test_azure_upload():
+    """Test Azure blob service initialization"""
+    try:
+        from app.services.azure_blob_service import AzureBlobService
+        connection_string = settings.AZURE_STORAGE_CONNECTION_STRING
+        container_name = settings.AZURE_STORAGE_CONTAINER or "uploads"
+        
+        if not connection_string:
+            return {"error": "No connection string configured"}
+        
+        # Use context manager to ensure proper cleanup
+        async with AzureBlobService(connection_string, container_name) as blob_service:
+            # Try to get client without actually uploading
+            client = await blob_service.get_client()
+            return {
+                "success": True,
+                "message": "Azure Blob Service initialized successfully",
+                "container_name": container_name
+            }
+    except Exception as e:
+        return {
+            "error": str(e),
+            "type": type(e).__name__
+        }
+
+# Azure Storage diagnostic endpoint
+@router.post("/debug/azure-storage-test")
+async def test_azure_storage_connection():
+    """Test Azure Storage connection and authentication"""
+    try:
+        from app.services.azure_blob_service import AzureBlobService
+        connection_string = settings.AZURE_STORAGE_CONNECTION_STRING
+        container_name = settings.AZURE_STORAGE_CONTAINER or "uploads"
+        
+        if not connection_string:
+            return {"error": "No connection string configured"}
+        
+        if "your-account-key" in connection_string:
+            return {"error": "Connection string contains placeholder values"}
+        
+        # Test connection
+        async with AzureBlobService(connection_string, container_name) as blob_service:
+            # Validate connection
+            connection_valid = await blob_service.validate_connection()
+            
+            if not connection_valid:
+                return {
+                    "success": False,
+                    "error": "Connection validation failed - check credentials"
+                }
+            
+            # Try to get container properties to test permissions
+            try:
+                container_client = await blob_service.get_container_client()
+                properties = await container_client.get_container_properties()
+                
+                return {
+                    "success": True,
+                    "message": "Azure Storage connection test successful",
+                    "container_name": container_name,
+                    "container_exists": True,
+                    "last_modified": properties.last_modified.isoformat() if properties.last_modified else None,
+                    "connection_string_preview": connection_string[:50] + "..."
+                }
+            except Exception as container_error:
+                return {
+                    "success": False,
+                    "error": f"Connection valid but failed to access container: {str(container_error)}"
+                }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "type": type(e).__name__
+        }
 
 # Pydantic models
 class OrderResponse(BaseModel):
@@ -66,6 +163,21 @@ class OrderListResponse(BaseModel):
     page: int
     per_page: int
 
+class AssistantProcessRequest(BaseModel):
+    """Request model for assistant processing"""
+    user_message: Optional[str] = None
+    custom_instructions: Optional[str] = None
+
+class AssistantProcessResponse(BaseModel):
+    """Response model for assistant processing"""
+    success: bool
+    thread_id: Optional[str] = None
+    run_id: Optional[str] = None
+    response: Optional[List[str]] = None
+    status: Optional[str] = None
+    error: Optional[str] = None
+    message: Optional[str] = None
+
 # Utility functions
 def generate_order_number() -> str:
     return f"ORD-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
@@ -87,6 +199,48 @@ async def save_uploaded_file(file: UploadFile, user_id: str) -> str:
         await f.write(content)
     
     return file_path
+
+
+
+async def upload_file_to_azure_blob(file: UploadFile, user_id: str) -> str:
+    """Upload file to Azure Blob Storage and return the blob URL"""
+    try:
+        # Get Azure Storage connection info from settings
+        connection_string = settings.AZURE_STORAGE_CONNECTION_STRING
+        logger.info(f"Azure Storage Connection String configured: {bool(connection_string)}")
+        if connection_string:
+            logger.info(f"Connection string preview: {connection_string[:100]}...")
+        
+        if not connection_string or "your-account-key" in connection_string or len(connection_string) < 50:
+            # Fallback to local storage if Azure not configured
+            logger.warning("Azure Storage not configured properly, falling back to local storage")
+            logger.warning(f"Connection string length: {len(connection_string) if connection_string else 0}")
+            return await save_uploaded_file(file, user_id)
+        
+        logger.info(f"Using Azure Blob Storage with connection string: {connection_string[:50]}...")
+        container_name = settings.AZURE_STORAGE_CONTAINER or "uploads"
+        logger.info(f"Container name: {container_name}")
+        
+        # Use context manager to ensure proper cleanup
+        async with AzureBlobService(connection_string, container_name) as blob_service:
+            file_extension = os.path.splitext(file.filename)[1]
+            blob_name = f"{user_id}/{uuid.uuid4()}{file_extension}"
+            logger.info(f"Generated blob name: {blob_name}")
+            
+            await file.seek(0)
+            
+            # Upload to Azure Blob
+            logger.info("Starting Azure Blob upload...")
+            await blob_service.upload_fileobj(file, blob_name)
+            url = await blob_service.get_blob_url(blob_name)
+            logger.info(f"Successfully uploaded file to Azure Blob: {url}")
+            return url
+        
+    except Exception as e:
+        logger.error(f"Failed to upload to Azure Blob Storage: {str(e)}", exc_info=True)
+        # Fallback to local storage
+        logger.warning("Falling back to local storage due to error")
+        return await save_uploaded_file(file, user_id)
 
 # API endpoints
 @router.post("/upload", response_model=OrderResponse)
@@ -119,11 +273,13 @@ async def upload_order(
             detail=f"File size too large. Maximum size: {settings.MAX_FILE_SIZE / (1024*1024):.1f}MB"
         )
     
-    # Reset file pointer
+    # Reset file pointer for upload
     await file.seek(0)
     
-    # Save file
-    file_path = await save_uploaded_file(file, str(current_user.id))
+    # Save file to Azure Blob Storage
+    logger.info(f"Uploading file {file.filename} for user {current_user.id}")
+    file_url = await upload_file_to_azure_blob(file, str(current_user.id))
+    logger.info(f"File uploaded, URL: {file_url}")
     
     # Create order record
     order = Order(
@@ -131,7 +287,7 @@ async def upload_order(
         order_number=generate_order_number(),
         status="UPLOADED",
         original_filename=file.filename,
-        file_path=file_path,
+        file_path=file_url,  # Store Azure Blob URL
         file_type=file_extension,
         file_size=len(file_content),
         priority=priority,
@@ -139,7 +295,8 @@ async def upload_order(
         file_metadata={
             "priority": priority,
             "special_instructions": special_instructions,
-            "upload_timestamp": datetime.utcnow().isoformat()
+            "upload_timestamp": datetime.utcnow().isoformat(),
+            "cloud_storage": "azure_blob" if file_url.startswith("https://") else "local_storage"
         }
     )
     
@@ -479,3 +636,94 @@ async def update_order_status(
     await db.commit()
     
     return {"message": "Order status updated successfully"}
+
+@router.post("/{order_id}/process-with-assistant", response_model=AssistantProcessResponse)
+async def process_order_with_ai_assistant(
+    order_id: str,
+    request: AssistantProcessRequest = None,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Process an order using the AI assistant.
+    
+    The assistant will:
+    1. Get order summary and current status
+    2. Parse order file if needed
+    3. Validate order data
+    4. Generate emails for missing information
+    5. Process SKU items and calculate totals
+    6. Calculate logistics and shipping costs
+    7. Apply any necessary corrections
+    """
+    # Verify order exists and belongs to user
+    result = await db.execute(
+        select(Order).where(
+            Order.id == uuid.UUID(order_id),
+            Order.user_id == current_user.id
+        )
+    )
+    order = result.scalar_one_or_none()
+    
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Order not found"
+        )
+    
+    # Check if order is in a processable state
+    if order.status in ["CANCELLED", "DELIVERED"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Order cannot be processed in {order.status} status"
+        )
+    
+    try:
+        # Prepare user message
+        user_message = None
+        if request and request.user_message:
+            user_message = request.user_message
+        elif request and request.custom_instructions:
+            user_message = f"Please process order {order_id} with these custom instructions: {request.custom_instructions}"
+
+        # Download file from Azure Blob if needed
+        # The order.file_path is now a blob URL
+        # If your assistant needs the file, download it using Azure SDK
+        # Example: download and pass file content to the assistant
+        # (Implement as needed in process_order_with_assistant)
+
+        result = await process_order_with_assistant(db, order_id, user_message)
+
+        # Create tracking entry for assistant processing
+        tracking = OrderTracking(
+            order_id=order.id,
+            status="AI_PROCESSING",
+            message="Order processed with AI assistant",
+            details=f"Thread ID: {result.get('thread_id', 'N/A')}, Success: {result.get('success', False)}"
+        )
+        db.add(tracking)
+
+        # Update order status if processing was successful
+        if result.get("success"):
+            order.status = "AI_PROCESSED"
+            order.updated_at = datetime.utcnow()
+
+        await db.commit()
+
+        return AssistantProcessResponse(**result)
+
+    except Exception as e:
+        # Create error tracking entry
+        tracking = OrderTracking(
+            order_id=order.id,
+            status="AI_PROCESSING_ERROR",
+            message="AI assistant processing failed",
+            details=f"Error: {str(e)}"
+        )
+        db.add(tracking)
+        await db.commit()
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Assistant processing failed: {str(e)}"
+        )

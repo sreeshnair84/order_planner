@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Layout from '../components/common/Layout';
+import OrderProcessingScreen from '../components/OrderProcessingScreen';
 import { orderService } from '../services/orderService';
 import { 
   Upload, 
@@ -30,6 +31,8 @@ const OrderCreationPage = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showProcessingScreen, setShowProcessingScreen] = useState(false);
+  const [processingOrderId, setProcessingOrderId] = useState(null);
   const { register, handleSubmit, reset } = useForm();
 
   // Queries
@@ -123,6 +126,17 @@ const OrderCreationPage = () => {
 
   const handleProcessOrder = (orderId) => {
     processMutation.mutate(orderId);
+  };
+
+  const handleViewOrder = (orderId) => {
+    setProcessingOrderId(orderId);
+    setShowProcessingScreen(true);
+  };
+
+  const handleCloseProcessingScreen = () => {
+    setShowProcessingScreen(false);
+    setProcessingOrderId(null);
+    refetch(); // Refresh the orders list
   };
 
   const getStatusIcon = (status) => {
@@ -454,7 +468,7 @@ const OrderCreationPage = () => {
                 </div>
                 <div className="divide-y divide-gray-200">
                   {filteredOrders
-                    .filter(order => ['UPLOADED', 'PROCESSING', 'PENDING_INFO'].includes(order.status))
+                    .filter(order => ['UPLOADED', 'PROCESSING', 'PENDING_INFO','MISSING_INFO'].includes(order.status))
                     .map((order) => (
                       <div key={order.id} className="px-6 py-4">
                         <div className="flex items-center justify-between">
@@ -474,6 +488,13 @@ const OrderCreationPage = () => {
                               {order.status}
                             </span>
                             <button
+                              onClick={() => handleViewOrder(order.id)}
+                              className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700"
+                            >
+                              <Eye className="h-3 w-3 mr-1" />
+                              View
+                            </button>
+                            <button
                               onClick={() => handleProcessOrder(order.id)}
                               disabled={processMutation.isLoading}
                               className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
@@ -491,6 +512,18 @@ const OrderCreationPage = () => {
           )}
         </div>
       </div>
+
+      {/* Order Processing Screen Modal */}
+      {showProcessingScreen && processingOrderId && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-7xl shadow-lg rounded-md bg-white">
+            <OrderProcessingScreen 
+              orderId={processingOrderId}
+              onClose={handleCloseProcessingScreen}
+            />
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };

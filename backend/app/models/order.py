@@ -64,6 +64,7 @@ class Order(Base):
     route_orders = relationship("RouteOrder", back_populates="order")
     consolidation_orders = relationship("ConsolidationOrder", back_populates="order")
     delivery_trackings = relationship("DeliveryTracking", back_populates="order")
+    ai_agent_threads = relationship("AIAgentThread", back_populates="order")
 
     def __repr__(self):
         return f"<Order(number='{self.order_number}', status='{self.status}')>"

@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 # Create async engine for PostgreSQL
 engine = create_async_engine(
     settings.DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://"),
-    echo=True,
+    echo=False,
     future=True
 )
 
@@ -70,3 +70,18 @@ async def get_db():
 def get_engine():
     """Get the database engine for migrations"""
     return engine
+
+def get_database_url():
+    """Get the database URL from settings"""
+    return settings.DATABASE_URL
+
+async def get_async_session():
+    """Get an async database session"""
+    async with AsyncSessionLocal() as session:
+        try:
+            return session
+        except Exception as e:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()

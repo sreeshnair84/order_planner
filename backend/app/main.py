@@ -1,17 +1,25 @@
-from fastapi import FastAPI, HTTPException, Depends
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBearer
-from contextlib import asynccontextmanager
 import logging
-from app.database.connection import init_db
-from app.api import auth, orders, tracking, files, trips, logistics, order_processing, management, manufacturers, email_management
-from app.utils.config import settings
 
-# Configure logging
+# Configure logging FIRST, before any other imports
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
+
+# Disable SQLAlchemy info logging by setting to ERROR level
+logging.getLogger('sqlalchemy.engine').setLevel(logging.ERROR)
+logging.getLogger('sqlalchemy.dialects').setLevel(logging.ERROR)
+logging.getLogger('sqlalchemy.pool').setLevel(logging.ERROR)
+logging.getLogger('sqlalchemy.orm').setLevel(logging.ERROR)
+
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer
+from contextlib import asynccontextmanager
+from app.database.connection import init_db
+from app.api import auth, orders, tracking, files, trips, logistics, order_processing, management, manufacturers, email_management, ai_agent, enhanced_order_processing
+from app.utils.config import settings
+
 logger = logging.getLogger(__name__)
 
 @asynccontextmanager
@@ -53,6 +61,8 @@ app.include_router(logistics.router, prefix="/api/logistics", tags=["Logistics &
 app.include_router(management.router, prefix="/api/management", tags=["Management"])
 app.include_router(manufacturers.router, prefix="/api", tags=["Manufacturers"])
 app.include_router(email_management.router, prefix="/api", tags=["Email Management"])
+app.include_router(ai_agent.router, tags=["AI Agent"])
+app.include_router(enhanced_order_processing.router, tags=["Enhanced Order Processing"])
 
 # Import and include analytics router
 from app.api import analytics

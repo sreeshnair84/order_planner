@@ -55,34 +55,101 @@ class FileParserService:
             return obj
     
     async def parse_file(self, order_id: str, file_path: str, file_type: str) -> Dict[str, Any]:
-        """Parse file and log all steps for tracking"""
+        """Parse file and log all steps for tracking. Supports Azure Blob URLs."""
         try:
             # Log parsing start
             await self._log_tracking(order_id, "FILE_PARSING_STARTED", 
                                    f"Starting to parse {file_type} file: {file_path}")
-            
+
+            # If file_path is an Azure Blob URL, download to temp file
+            local_path = file_path
+            if file_path.startswith("https://") and ".blob.core.windows.net/" in file_path:
+                try:
+                    import tempfile
+                    from app.services.azure_blob_service import AzureBlobService
+                    from app.utils.config import settings
+                    from urllib.parse import urlparse
+                    
+                    # Parse container and blob name from URL
+                    url = urlparse(file_path)
+                    path_parts = url.path.lstrip('/').split('/', 1)
+                    container_name = path_parts[0]
+                    blob_name = path_parts[1] if len(path_parts) > 1 else ''
+                    
+                    logger.info(f"Downloading Azure blob: container={container_name}, blob={blob_name}")
+                    
+                    # Use our enhanced Azure Blob Service with proper error handling
+                    connection_string = settings.AZURE_STORAGE_CONNECTION_STRING
+                    if not connection_string or "your-account-key" in connection_string:
+                        raise ValueError("Azure Storage connection string not properly configured")
+                    
+                    async with AzureBlobService(connection_string, container_name) as blob_service:
+                        # Validate connection first
+                        if not await blob_service.validate_connection():
+                            raise ValueError("Failed to validate Azure Storage connection")
+                        
+                        # Check if blob exists
+                        if not await blob_service.blob_exists(blob_name):
+                            raise ValueError(f"Blob {blob_name} not found in container {container_name}")
+                        
+                        # Download blob data
+                        blob_data = await blob_service.download_blob(blob_name)
+                        
+                        # Create temporary file
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=file_type) as tmp:
+                            tmp.write(blob_data)
+                            local_path = tmp.name
+                            
+                        logger.info(f"Successfully downloaded blob to temporary file: {local_path}")
+                        
+                except Exception as download_error:
+                    logger.error(f"Failed to download Azure blob: {str(download_error)}")
+                    await self._log_tracking(order_id, "FILE_DOWNLOAD_ERROR", 
+                                           f"Failed to download file from Azure: {str(download_error)}")
+                    raise ValueError(f"Cannot access file from Azure Blob Storage: {str(download_error)}")
+
             if file_type.lower() == '.csv':
-                result = await self._parse_csv(order_id, file_path)
+                result = await self._parse_csv(order_id, local_path)
             elif file_type.lower() == '.xml':
-                result = await self._parse_xml(order_id, file_path)
+                result = await self._parse_xml(order_id, local_path)
             elif file_type.lower() in ['.log', '.txt']:
-                result = await self._parse_log(order_id, file_path)
+                result = await self._parse_log(order_id, local_path)
             elif file_type.lower() == '.json':
-                result = await self._parse_json(order_id, file_path)
+                result = await self._parse_json(order_id, local_path)
             else:
                 raise ValueError(f"Unsupported file type: {file_type}")
-            
+
             # Log parsing completion
             await self._log_tracking(order_id, "FILE_PARSING_COMPLETED", 
                                    f"Successfully parsed {file_type} file with {result.get('total_records', 0)} records")
-            
+
             return result
-            
+
         except Exception as e:
             error_msg = f"Error parsing file {file_path}: {str(e)}"
             logger.error(error_msg)
             await self._log_tracking(order_id, "FILE_PARSING_ERROR", error_msg)
+            
+            # Clean up temporary file if it was created
+            if local_path != file_path and local_path.startswith('/tmp') or local_path.startswith('\\tmp'):
+                try:
+                    import os
+                    os.unlink(local_path)
+                    logger.info(f"Cleaned up temporary file: {local_path}")
+                except Exception as cleanup_error:
+                    logger.warning(f"Failed to cleanup temporary file {local_path}: {cleanup_error}")
+            
             raise
+        finally:
+            # Always clean up temporary file if it was created
+            if 'local_path' in locals() and local_path != file_path:
+                try:
+                    import os
+                    if os.path.exists(local_path):
+                        os.unlink(local_path)
+                        logger.info(f"Cleaned up temporary file: {local_path}")
+                except Exception as cleanup_error:
+                    logger.warning(f"Failed to cleanup temporary file {local_path}: {cleanup_error}")
     
     async def _parse_csv(self, order_id: str, file_path: str) -> Dict[str, Any]:
         """Parse CSV file with pandas and extract structured data"""
