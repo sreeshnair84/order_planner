@@ -83,6 +83,15 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
     }
   );
 
+  const { data: orderSKUItems } = useQuery(
+    ['order-sku-items', orderId],
+    () => orderService.getOrderSKUItems(orderId),
+    {
+      enabled: !!orderId,
+      refetchInterval: 10000,
+    }
+  );
+
   // Mutations
   const processOrderMutation = useMutation(
     () => orderService.processOrder(orderId),
@@ -264,6 +273,7 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
           {[
             { id: 'overview', label: 'Overview', icon: Eye },
             { id: 'processing', label: 'Processing', icon: Settings },
+            { id: 'sku-items', label: 'SKU Items', icon: Package },
             { id: 'ai-agent', label: 'AI Agent', icon: Bot },
             { id: 'tracking', label: 'Tracking', icon: Activity },
             { id: 'emails', label: 'Communications', icon: Mail }
@@ -297,9 +307,10 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
                   <h3 className="font-medium text-gray-900">File Details</h3>
                 </div>
                 <div className="mt-2 space-y-1 text-sm text-gray-600">
-                  <p>Name: {orderDetails?.data?.original_filename}</p>
-                  <p>Type: {orderDetails?.data?.file_type}</p>
-                  <p>Size: {orderDetails?.data?.file_size ? `${(orderDetails.data.file_size / 1024).toFixed(2)} KB` : 'N/A'}</p>
+                  
+                  <p>Name: {orderDetails?.original_filename}</p>
+                  <p>Type: {orderDetails?.file_type}</p>
+                  <p>Size: {orderDetails?.file_size ? `${(orderDetails.file_size / 1024).toFixed(2)} KB` : 'N/A'}</p>
                 </div>
               </div>
               
@@ -309,9 +320,9 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
                   <h3 className="font-medium text-gray-900">Order Summary</h3>
                 </div>
                 <div className="mt-2 space-y-1 text-sm text-gray-600">
-                  <p>SKUs: {orderDetails?.data?.total_sku_count || 0}</p>
-                  <p>Quantity: {orderDetails?.data?.total_quantity || 0}</p>
-                  <p>Weight: {orderDetails?.data?.total_weight_kg || 0} kg</p>
+                  <p>SKUs: {orderDetails?.total_sku_count || 0}</p>
+                  <p>Quantity: {orderDetails?.total_quantity || 0}</p>
+                  <p>Weight: {orderDetails?.total_weight_kg || 0} kg</p>
                 </div>
               </div>
               
@@ -321,8 +332,8 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
                   <h3 className="font-medium text-gray-900">Timeline</h3>
                 </div>
                 <div className="mt-2 space-y-1 text-sm text-gray-600">
-                  <p>Created: {formatDateTime(orderDetails?.data?.created_at)}</p>
-                  <p>Updated: {formatDateTime(orderDetails?.data?.updated_at)}</p>
+                  <p>Created: {formatDateTime(orderDetails?.created_at)}</p>
+                  <p>Updated: {formatDateTime(orderDetails?.updated_at)}</p>
                 </div>
               </div>
             </div>
@@ -802,6 +813,251 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
                   </div>
                 );
               }
+            })()}
+          </div>
+        )}
+
+        {/* SKU Items Tab */}
+        {activeTab === 'sku-items' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium text-gray-900">SKU Items Details</h3>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => queryClient.invalidateQueries(['order-sku-items', orderId])}
+                  className="flex items-center space-x-2 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  <span>Refresh</span>
+                </button>
+              </div>
+            </div>
+
+            {/* SKU Items Table */}
+            {(() => {
+              const skuItems = orderSKUItems?.data || orderSKUItems || [];
+              
+              if (!skuItems || skuItems.length === 0) {
+                return (
+                  <div className="text-center py-12">
+                    <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                      <Package className="h-12 w-12 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No SKU items found</h3>
+                    <p className="text-gray-500 mb-4">
+                      SKU items will appear here once the order has been processed and parsed.
+                    </p>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="bg-white shadow overflow-hidden sm:rounded-md">
+                  <div className="px-4 py-5 sm:p-6">
+                    <div className="mb-4 text-sm text-gray-600">
+                      Found {skuItems.length} SKU item{skuItems.length !== 1 ? 's' : ''} in this order
+                      {orderDetails?.total_sku_count && orderDetails.total_sku_count !== skuItems.length && (
+                        <span className="ml-2 text-blue-600">
+                          (Order summary shows {orderDetails.total_sku_count} total SKUs)
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              SKU Code
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Product Name
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Category/Brand
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Quantity
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Pricing
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Physical Details
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Processing Remarks
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {skuItems.map((item, index) => (
+                            <tr key={item.id || index} className="hover:bg-gray-50">
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center">
+                                  <div className="flex-shrink-0 h-8 w-8">
+                                    <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                      <Package className="h-4 w-4 text-blue-600" />
+                                    </div>
+                                  </div>
+                                  <div className="ml-4">
+                                    <div className="text-sm font-medium text-gray-900">
+                                      {item.sku_code || 'N/A'}
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className="text-sm text-gray-900">
+                                  {item.product_name || 'N/A'}
+                                </div>
+                                {item.product_attributes && (
+                                  <div className="text-xs text-gray-500 mt-1">
+                                    <details>
+                                      <summary className="cursor-pointer">Attributes</summary>
+                                      <pre className="mt-1 text-xs bg-gray-50 p-2 rounded">
+                                        {JSON.stringify(item.product_attributes, null, 2)}
+                                      </pre>
+                                    </details>
+                                  </div>
+                                )}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">
+                                  {item.category && (
+                                    <div className="text-sm text-gray-900">{item.category}</div>
+                                  )}
+                                  {item.brand && (
+                                    <div className="text-xs text-gray-500">{item.brand}</div>
+                                  )}
+                                  {!item.category && !item.brand && 'N/A'}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">
+                                  {item.quantity_ordered || 0} {item.unit_of_measure || 'units'}
+                                </div>
+                                {item.fragile && (
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 mt-1">
+                                    Fragile
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">
+                                  {item.unit_price && (
+                                    <div>Unit: ${parseFloat(item.unit_price).toFixed(2)}</div>
+                                  )}
+                                  {item.total_price && (
+                                    <div className="font-medium">Total: ${parseFloat(item.total_price).toFixed(2)}</div>
+                                  )}
+                                  {!item.unit_price && !item.total_price && 'No pricing'}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">
+                                  {item.weight_kg && (
+                                    <div>Weight: {item.weight_kg} kg</div>
+                                  )}
+                                  {item.volume_m3 && (
+                                    <div>Volume: {item.volume_m3} m³</div>
+                                  )}
+                                  {item.temperature_requirement && (
+                                    <div className="text-xs text-blue-600">
+                                      Temp: {item.temperature_requirement}
+                                    </div>
+                                  )}
+                                  {!item.weight_kg && !item.volume_m3 && !item.temperature_requirement && 'N/A'}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className="text-sm text-gray-900">
+                                  {item.processing_remarks ? (
+                                    <div className="max-w-xs">
+                                      <div className="text-sm bg-yellow-50 border border-yellow-200 rounded p-2">
+                                        {item.processing_remarks}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <span className="text-gray-400 italic">No remarks</span>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Summary Stats - Using aggregated data from orders table */}
+                    <div className="mt-6 border-t border-gray-200 pt-6">
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                        <div className="bg-blue-50 rounded-lg p-4">
+                          <div className="text-sm font-medium text-blue-600">Total SKUs</div>
+                          <div className="text-2xl font-bold text-blue-900">
+                            {orderDetails?.total_sku_count || skuItems.length}
+                          </div>
+                          <div className="text-xs text-blue-500 mt-1">Unique items</div>
+                        </div>
+                        <div className="bg-green-50 rounded-lg p-4">
+                          <div className="text-sm font-medium text-green-600">Total Quantity</div>
+                          <div className="text-2xl font-bold text-green-900">
+                            {orderDetails?.total_quantity || skuItems.reduce((sum, item) => sum + (parseInt(item.quantity_ordered) || 0), 0)}
+                          </div>
+                          <div className="text-xs text-green-500 mt-1">Units ordered</div>
+                        </div>
+                        <div className="bg-purple-50 rounded-lg p-4">
+                          <div className="text-sm font-medium text-purple-600">Total Weight</div>
+                          <div className="text-2xl font-bold text-purple-900">
+                            {orderDetails?.total_weight_kg ? `${parseFloat(orderDetails.total_weight_kg).toFixed(2)} kg` : 'N/A'}
+                          </div>
+                          <div className="text-xs text-purple-500 mt-1">Kilograms</div>
+                        </div>
+                        <div className="bg-indigo-50 rounded-lg p-4">
+                          <div className="text-sm font-medium text-indigo-600">Subtotal</div>
+                          <div className="text-2xl font-bold text-indigo-900">
+                            ${orderDetails?.subtotal ? parseFloat(orderDetails.subtotal).toFixed(2) : '0.00'}
+                          </div>
+                          <div className="text-xs text-indigo-500 mt-1">Order value</div>
+                        </div>
+                        <div className="bg-orange-50 rounded-lg p-4">
+                          <div className="text-sm font-medium text-orange-600">Items with Remarks</div>
+                          <div className="text-2xl font-bold text-orange-900">
+                            {skuItems.filter(item => item.processing_remarks).length}
+                          </div>
+                          <div className="text-xs text-orange-500 mt-1">Need attention</div>
+                        </div>
+                      </div>
+
+                      {/* Additional aggregated details */}
+                      {orderDetails?.total_volume_m3 && (
+                        <div className="mt-4 bg-gray-50 rounded-lg p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="text-sm font-medium text-gray-600">Total Volume</div>
+                              <div className="text-lg font-bold text-gray-900">
+                                {parseFloat(orderDetails.total_volume_m3).toFixed(3)} m³
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm font-medium text-gray-600">Tax Amount</div>
+                              <div className="text-lg font-bold text-gray-900">
+                                ${orderDetails.tax ? parseFloat(orderDetails.tax).toFixed(2) : '0.00'}
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm font-medium text-gray-600">Total Amount</div>
+                              <div className="text-lg font-bold text-gray-900">
+                                ${orderDetails.total ? parseFloat(orderDetails.total).toFixed(2) : '0.00'}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
             })()}
           </div>
         )}

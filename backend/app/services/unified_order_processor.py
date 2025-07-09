@@ -301,11 +301,30 @@ class UnifiedOrderProcessor(BaseOrderService):
             total_value = 0.0
             
             for i, item in enumerate(items):
+                processing_remarks = []
                 try:
                     quantity = float(item.get("quantity", 0))
                     price = float(item.get("price", 0))
                     weight = float(item.get("weight_kg", 1.0))  # Default 1kg
                     volume = float(item.get("volume_m3", 0.001))  # Default 1L
+                    
+                    # Check for missing required fields and add remarks
+                    if not item.get("sku_code"):
+                        processing_remarks.append("Missing SKU code")
+                    if not item.get("product_name"):
+                        processing_remarks.append("Missing product name")
+                    if quantity <= 0:
+                        processing_remarks.append("Invalid or missing quantity")
+                    if price <= 0:
+                        processing_remarks.append("Missing or invalid pricing information")
+                    if not item.get("category"):
+                        processing_remarks.append("Missing product category")
+                    if not item.get("brand"):
+                        processing_remarks.append("Missing brand information")
+                    if weight == 1.0 and not item.get("weight_kg"):
+                        processing_remarks.append("Using default weight (1kg) - actual weight not provided")
+                    if volume == 0.001 and not item.get("volume_m3"):
+                        processing_remarks.append("Using default volume (1L) - actual volume not provided")
                     
                     item_total = quantity * price
                     
@@ -322,11 +341,25 @@ class UnifiedOrderProcessor(BaseOrderService):
                         "weight_kg": weight,
                         "volume_m3": volume,
                         "line_total": item_total,
-                        "processed": True
+                        "processed": True,
+                        "processing_remarks": "; ".join(processing_remarks) if processing_remarks else None
                     })
                     
                 except (ValueError, TypeError) as e:
                     logger.warning(f"Error processing item {i}: {str(e)}")
+                    processing_remarks.append(f"Processing error: {str(e)}")
+                    # Still add the item with error remarks
+                    processed_items.append({
+                        "sku_code": item.get("sku_code", f"ERROR_ITEM_{i}"),
+                        "product_name": item.get("product_name", "Error - Unable to process"),
+                        "quantity": 0,
+                        "price": 0,
+                        "weight_kg": 0,
+                        "volume_m3": 0,
+                        "line_total": 0,
+                        "processed": False,
+                        "processing_remarks": "; ".join(processing_remarks)
+                    })
                     continue
             
             # Update order totals

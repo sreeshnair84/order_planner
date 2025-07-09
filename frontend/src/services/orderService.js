@@ -255,4 +255,24 @@ export const orderService = {
       throw error.response?.data || error.message;
     }
   },
+
+  async getOrderSKUItems(orderId) {
+    try {
+      const response = await api.get(`/orders/${orderId}/sku-details`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  async downloadOrderData(orderId, format = 'csv') {
+    try {
+      const response = await api.get(`/orders/${orderId}/download?format=${format}`, {
+        responseType: 'blob'
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 };

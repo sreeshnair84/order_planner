@@ -7,6 +7,7 @@ A comprehensive web-based order management system that allows retailers to uploa
 ### Core Functionality
 - **Multi-format File Upload**: Support for CSV, XML, and LOG files
 - **Intelligent File Processing**: Automatic data extraction and validation
+- **SKU-Level Processing**: Detailed tracking of individual SKU items with processing remarks
 - **Real-time Order Tracking**: Live status updates with detailed timeline
 - **Email Communication**: Automated emails for missing information requests
 - **User Authentication**: Secure JWT-based authentication
@@ -198,6 +199,44 @@ REDIS_URL=redis://localhost:6379
 #### Frontend (.env)
 ```env
 REACT_APP_API_URL=http://localhost:8000/api
+```
+
+## 📦 SKU Item Processing
+
+### Processing Remarks Feature
+The system now includes detailed SKU-level processing with automatic generation of processing remarks for missing or invalid data:
+
+#### What are Processing Remarks?
+- Automatically generated notes about missing or problematic data in SKU items
+- Help identify specific issues with individual products in an order
+- Displayed in the Order Processing interface for easy review
+
+#### Examples of Processing Remarks
+- "Missing SKU code"
+- "Missing or invalid pricing information" 
+- "Missing product category"
+- "Using default weight (1kg) - actual weight not provided"
+- "Processing error: Invalid data format"
+
+#### SKU Items Tab
+In the Order Processing interface, navigate to the **SKU Items** tab to:
+- View detailed information for all SKU items in an order
+- See processing remarks for items with issues
+- Review summary statistics (total items, total value, items with remarks)
+- Access product attributes and physical details
+
+#### Database Migration
+For existing installations, run the database migration to add the new processing_remarks column:
+
+**Windows:**
+```batch
+cd backend\scripts
+.\migrate_add_processing_remarks.ps1
+```
+
+**Manual SQL:**
+```sql
+ALTER TABLE order_sku_items ADD COLUMN processing_remarks TEXT;
 ```
 
 ## 📊 API Documentation

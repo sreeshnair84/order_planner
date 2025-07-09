@@ -33,7 +33,8 @@ class SKUService:
                 volume_m3=sku_data.volume_m3,
                 temperature_requirement=sku_data.temperature_requirement,
                 fragile=sku_data.fragile,
-                product_attributes=sku_data.product_attributes or {}
+                product_attributes=sku_data.product_attributes or {},
+                processing_remarks=sku_data.processing_remarks
             )
             
             self.db.add(sku_item)
@@ -184,6 +185,7 @@ class SKUService:
             temperature_requirement=sku_item.temperature_requirement,
             fragile=sku_item.fragile,
             product_attributes=sku_item.product_attributes,
+            processing_remarks=sku_item.processing_remarks,
             created_at=sku_item.created_at,
             updated_at=sku_item.updated_at
         )

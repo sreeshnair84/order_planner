@@ -23,6 +23,7 @@ class OrderSKUItem(Base):
     temperature_requirement = Column(String(50))
     fragile = Column(Boolean, default=False)
     product_attributes = Column(JSONB)
+    processing_remarks = Column(Text)  # New column for processing remarks
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     

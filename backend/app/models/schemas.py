@@ -24,6 +24,7 @@ class SKUItemCreate(BaseModel):
     temperature_requirement: Optional[str] = Field(None, max_length=50)
     fragile: bool = False
     product_attributes: Optional[Dict[str, Any]] = None
+    processing_remarks: Optional[str] = None
 
 class SKUItemResponse(BaseModel):
     id: str
@@ -40,6 +41,7 @@ class SKUItemResponse(BaseModel):
     temperature_requirement: Optional[str] = None
     fragile: bool = False
     product_attributes: Optional[Dict[str, Any]] = None
+    processing_remarks: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
