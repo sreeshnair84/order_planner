@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 from datetime import datetime
 from decimal import Decimal
 
@@ -90,25 +90,24 @@ class OrderDetailedResponse(BaseModel):
     retailer_info: Optional[Dict[str, Any]] = None
     
     # Order summary
-    total_sku_count: int
-    total_quantity: int
-    total_weight_kg: Decimal
-    total_volume_m3: Decimal
-    subtotal: Decimal
-    tax: Decimal
-    total: Decimal
-    
+    total_sku_count: Optional[int] = None
+    total_quantity: Optional[int] = None
+    total_weight_kg: Optional[Decimal] = None
+    total_volume_m3: Optional[Decimal] = None
+    subtotal: Optional[Decimal] = None
+    tax: Optional[Decimal] = None
+    total: Optional[Decimal] = None
     # Trip information
     trip_id: Optional[str] = None
     trip_status: Optional[str] = None
     estimated_delivery_date: Optional[datetime] = None
     
     # SKU items
-    sku_items: List[SKUItemResponse] = []
+    sku_items: Optional[List[SKUItemResponse]] = []
     
     # Metadata
-    missing_fields: Optional[Dict[str, Any]] = None
-    validation_errors: Optional[Dict[str, Any]] = None
+    missing_fields: Optional[List[str]] = None
+    validation_errors: Optional[List[str]] = None
     processing_notes: Optional[str] = None
     
     created_at: datetime

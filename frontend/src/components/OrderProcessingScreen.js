@@ -23,7 +23,9 @@ import {
   Download,
   RefreshCw,
   Package,
-  Bell
+  Bell,
+  MapPin,
+  User
 } from 'lucide-react';
 import { orderService } from '../services/orderService';
 import { aiAgentService } from '../services/aiAgentService';
@@ -239,9 +241,9 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
           <div>
             <h2 className="text-2xl font-bold">Order Processing Center</h2>
             <p className="text-blue-100">
-              Order: {orderDetails?.data?.order_number} | 
-              Status: <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(orderDetails?.data?.status)}`}>
-                {orderDetails?.data?.status}
+              Order: {orderDetails?.order_number} | 
+              Status: <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(orderDetails?.status)}`}>
+                {orderDetails?.status}
               </span>
             </p>
           </div>
@@ -320,11 +322,100 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
                   <h3 className="font-medium text-gray-900">Order Summary</h3>
                 </div>
                 <div className="mt-2 space-y-1 text-sm text-gray-600">
+                  <p>Retailer: {orderDetails?.retailer_info?.name || 'N/A'}</p>
+                  <p>Priority: <span className={`px-2 py-1 rounded text-xs font-medium ${
+                    orderDetails?.priority === 'URGENT' ? 'bg-red-100 text-red-800' :
+                    orderDetails?.priority === 'HIGH' ? 'bg-orange-100 text-orange-800' :
+                    orderDetails?.priority === 'NORMAL' ? 'bg-blue-100 text-blue-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>{orderDetails?.priority || 'NORMAL'}</span></p>
                   <p>SKUs: {orderDetails?.total_sku_count || 0}</p>
                   <p>Quantity: {orderDetails?.total_quantity || 0}</p>
                   <p>Weight: {orderDetails?.total_weight_kg || 0} kg</p>
                 </div>
               </div>
+              
+              {/* Special Instructions */}
+              {orderDetails?.special_instructions && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-2">
+                    <AlertCircle className="h-5 w-5 text-amber-600" />
+                    <h3 className="font-medium text-amber-900">Special Instructions</h3>
+                  </div>
+                  <div className="mt-2 text-sm text-amber-800">
+                    {orderDetails.special_instructions}
+                  </div>
+                </div>
+              )}
+              
+              {/* Delivery Information */}
+              {orderDetails?.delivery_address && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-2">
+                    <MapPin className="h-5 w-5 text-blue-600" />
+                    <h3 className="font-medium text-blue-900">Delivery Information</h3>
+                  </div>
+                  <div className="mt-2 space-y-1 text-sm text-blue-800">
+                    {orderDetails.delivery_address.street && (
+                      <p>{orderDetails.delivery_address.street}</p>
+                    )}
+                    {(orderDetails.delivery_address.city || orderDetails.delivery_address.state || orderDetails.delivery_address.zip_code) && (
+                      <p>
+                        {orderDetails.delivery_address.city && `${orderDetails.delivery_address.city}, `}
+                        {orderDetails.delivery_address.state && `${orderDetails.delivery_address.state} `}
+                        {orderDetails.delivery_address.zip_code}
+                      </p>
+                    )}
+                    {orderDetails.delivery_address.country && (
+                      <p>{orderDetails.delivery_address.country}</p>
+                    )}
+                    {orderDetails?.requested_delivery_date && (
+                      <p className="mt-2 font-medium">
+                        Requested Delivery: {formatDateTime(orderDetails.requested_delivery_date)}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {/* Retailer Contact Information */}
+              {orderDetails?.retailer_info && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-2">
+                    <User className="h-5 w-5 text-green-600" />
+                    <h3 className="font-medium text-green-900">Retailer Contact</h3>
+                  </div>
+                  <div className="mt-2 space-y-1 text-sm text-green-800">
+                    {orderDetails.retailer_info.name && (
+                      <p className="font-medium">{orderDetails.retailer_info.name}</p>
+                    )}
+                    {orderDetails.retailer_info.contact_person && (
+                      <p>Contact: {orderDetails.retailer_info.contact_person}</p>
+                    )}
+                    {orderDetails.retailer_info.email && (
+                      <p>Email: {orderDetails.retailer_info.email}</p>
+                    )}
+                    {orderDetails.retailer_info.phone && (
+                      <p>Phone: {orderDetails.retailer_info.phone}</p>
+                    )}
+                    {orderDetails.retailer_info.address && (
+                      <div className="mt-2">
+                        <p className="font-medium">Address:</p>
+                        {orderDetails.retailer_info.address.street && (
+                          <p className="ml-2">{orderDetails.retailer_info.address.street}</p>
+                        )}
+                        {(orderDetails.retailer_info.address.city || orderDetails.retailer_info.address.state || orderDetails.retailer_info.address.zip_code) && (
+                          <p className="ml-2">
+                            {orderDetails.retailer_info.address.city && `${orderDetails.retailer_info.address.city}, `}
+                            {orderDetails.retailer_info.address.state && `${orderDetails.retailer_info.address.state} `}
+                            {orderDetails.retailer_info.address.zip_code}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
               
               <div className="bg-gray-50 rounded-lg p-4">
                 <div className="flex items-center space-x-2">
@@ -369,11 +460,11 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
             </div>
 
             {/* Validation Results */}
-            {orderDetails?.data?.validation_errors && (
+            {orderDetails?.validation_errors && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <h3 className="font-medium text-red-800 mb-2">Validation Issues</h3>
                 <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
-                  {orderDetails.data.validation_errors.map((error, index) => (
+                  {orderDetails.validation_errors.map((error, index) => (
                     <li key={index}>{error}</li>
                   ))}
                 </ul>
@@ -392,26 +483,26 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Current Status</span>
-                    <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(orderDetails?.data?.status)}`}>
-                      {orderDetails?.data?.status}
+                    <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(orderDetails?.status)}`}>
+                      {orderDetails?.status}
                     </span>
                   </div>
                   
-                  {orderDetails?.data?.processing_notes && (
+                  {orderDetails?.processing_notes && (
                     <div>
                       <span className="text-sm text-gray-600">Processing Notes</span>
-                      <p className="mt-1 text-sm text-gray-900">{orderDetails.data.processing_notes}</p>
+                      <p className="mt-1 text-sm text-gray-900">{orderDetails.processing_notes}</p>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Missing Information */}
-              {orderDetails?.data?.missing_fields && orderDetails.data.missing_fields.length > 0 && (
+              {orderDetails?.missing_fields && orderDetails.missing_fields.length > 0 && (
                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
                   <h3 className="text-lg font-medium text-orange-800 mb-4">Missing Information</h3>
                   <ul className="space-y-2">
-                    {orderDetails.data.missing_fields.map((field, index) => (
+                    {orderDetails.missing_fields.map((field, index) => (
                       <li key={index} className="flex items-center space-x-2 text-sm text-orange-700">
                         <AlertCircle className="h-4 w-4" />
                         <span>{field}</span>
@@ -517,7 +608,7 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
                   <div className="flex items-center justify-center py-8">
                     <RefreshCw className="h-6 w-6 animate-spin text-purple-500" />
                   </div>
-                ) : aiThreads?.data?.threads?.length > 0 ? (
+                ) : aiThreads?.threads?.length > 0 ? (
                   <div className="space-y-3">
                     {aiThreads.data.threads.map((thread) => (
                       <div
@@ -1029,7 +1120,7 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
                         </div>
                       </div>
 
-                      {/* Additional aggregated details */}
+                      {/* Additional aggregated details from orders table */}
                       {orderDetails?.total_volume_m3 && (
                         <div className="mt-4 bg-gray-50 rounded-lg p-4">
                           <div className="flex items-center justify-between">
