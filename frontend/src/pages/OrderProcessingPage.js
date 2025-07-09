@@ -85,6 +85,8 @@ const OrderProcessingPage = () => {
         return <CheckCircle className="h-5 w-5 text-green-600" />;
       case 'MISSING_INFO':
         return <AlertCircle className="h-5 w-5 text-red-600" />;
+      case 'NEEDS_REVIEW':
+        return <Mail className="h-5 w-5 text-orange-600" />;
       case 'EMAIL_SENT':
         return <Mail className="h-5 w-5 text-purple-600" />;
       default:

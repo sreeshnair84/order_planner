@@ -1,0 +1,18 @@
+ISA*00*          *00*          *ZZ*SENDERID      *ZZ*RECEIVERID    *250710*0930*U*00401*000000001*0*P*>~
+GS*PO*SENDERID*RECEIVERID*20250710*0930*1*X*004010~
+ST*850*0001~
+BEG*00*NE*ORD-SI-002**20250710~
+REF*PR*PAID~
+DTM*002*20250718~
+N1*ST*Bangalore Metro Mart*92*KA001~
+N3*100 Brigade Road~
+N4*Bangalore*Karnataka*560001*IN~
+PER*BD*Priya Sharma*EM*priya@blrmetro.com*TE*+91-9876543215~
+PO1*1*40*EA*0**BP*HC001*VP*Surf Excel Matic Liquid Detergent 1L~
+PID*F****Laundry - Surf Excel~
+PO1*2*100*EA*0**BP*FB001*VP*Maggi 2-Minute Noodles Masala 70g~
+PID*F****Instant Food - Maggi~
+CTT*2~
+SE*15*0001~
+GE*1*1~
+IEA*1*000000001~

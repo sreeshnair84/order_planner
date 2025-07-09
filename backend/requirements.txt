@@ -47,3 +47,4 @@ azure-ai-inference>=1.0.0b1
 azure-keyvault-secrets>=4.7.0
 azure-storage-blob>=12.19.0
 azure-monitor-opentelemetry>=1.2.0
+azure-functions

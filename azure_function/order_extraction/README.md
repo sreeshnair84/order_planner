@@ -25,6 +25,18 @@ This Azure Function provides AI-powered order file parsing and completeness vali
 - **Pricing Analysis**: Computes subtotals and identifies pricing gaps
 - **Status Management**: Updates order status based on completeness analysis
 
+### 🆕 Retailer Information Extraction
+- **AI-Powered Extraction**: Automatically extracts retailer information from order files
+- **Smart Database Matching**: Multiple search strategies to find matching retailers
+- **Delivery Address Processing**: Extracts and validates delivery addresses
+- **Manual Override Support**: API endpoints for manual retailer assignment
+
+### 🔍 Enhanced Search Capabilities  
+- **Exact Matching**: Code, name, and email-based retailer identification
+- **Fuzzy Matching**: PostgreSQL similarity-based partial name matching
+- **Confidence Scoring**: AI-powered confidence assessment for extractions
+- **Multi-Strategy Search**: Fallback mechanisms for robust retailer matching
+
 ## API Endpoints
 
 ### 1. Order File Reader
@@ -101,6 +113,85 @@ Validates existing order data for completeness and provides recommendations.
 **Endpoint**: `GET /api/health`
 
 Returns function health status and configuration.
+
+### 4. Retailer Information Extraction  
+**Endpoint**: `POST /api/extract_retailer_info`
+
+Extracts retailer information from an already uploaded order file.
+
+**Parameters**:
+- `order_id` (string): UUID of the order to process
+
+**Response**:
+```json
+{
+  "order_id": "uuid",
+  "order_number": "string", 
+  "retailer_extraction": {
+    "retailer_extracted": "boolean",
+    "confidence_score": "float",
+    "extracted_info": {
+      "retailer_name": "string",
+      "contact_email": "string",
+      "delivery_address": {
+        "street": "string",
+        "city": "string",
+        "state": "string",
+        "postal_code": "string",
+        "country": "string"
+      }
+    }
+  },
+  "database_search": {
+    "found": "boolean",
+    "search_method": "string",
+    "retailer": {
+      "id": "number",
+      "name": "string", 
+      "code": "string"
+    }
+  },
+  "updated": "boolean",
+  "message": "string"
+}
+```
+
+### 5. Manual Retailer Mapping
+**Endpoint**: `POST /api/update_retailer_mapping`
+
+Manually assigns a retailer to an order when automatic extraction doesn't find a match.
+
+**Parameters**:
+```json
+{
+  "order_id": "string",
+  "retailer_id": "number", 
+  "delivery_address": {
+    "street": "string",
+    "city": "string",
+    "state": "string", 
+    "postal_code": "string",
+    "country": "string"
+  }
+}
+```
+
+**Response**:
+```json
+{
+  "order_id": "uuid",
+  "order_number": "string",
+  "retailer_id": "number",
+  "retailer_info": {
+    "id": "number",
+    "name": "string",
+    "code": "string"
+  },
+  "delivery_address": "object",
+  "updated": "boolean", 
+  "message": "string"
+}
+```
 
 ## Configuration
 

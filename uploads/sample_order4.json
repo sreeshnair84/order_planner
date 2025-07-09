@@ -1,0 +1,68 @@
+[
+    {
+        "order_number": "ORD-SI-004",
+        "priority": "NORMAL",
+        "special_instructions": "Delivery to Kerala coastal store",
+        "requested_delivery_date": "2025-07-20T16:00:00Z",
+        "delivery_address": {
+            "street": "150 Marine Drive",
+            "city": "Kochi",
+            "state": "Kerala",
+            "postal_code": "682031",
+            "country": "India"
+        },
+        "retailer_info": {
+            "retailer_id": "KL001",
+            "retailer_name": "Kochi Marine Foods",
+            "contact_person": "Mohanan Nair",
+            "email": "mohanan@kochimarine.com"
+        },
+        "sku_code": "PC006",
+        "product_name": "Lux Soft Touch Body Wash 240ml",
+        "category": "Bath & Body",
+        "brand": "Lux",
+        "quantity": 20,
+        "weight_kg": 5.0,
+        "volume_m3": 0.005,
+        "customer_name": "Mohanan Nair",
+        "customer_email": "mohanan@kochimarine.com",
+        "customer_phone": "+91-9876543223",
+        "order_date": "2025-07-11T11:00:00Z",
+        "payment_status": "UNPAID",
+        "shipping_method": "STANDARD",
+        "notes": "Specialty store coastal delivery"
+    },
+    {
+        "order_number": "ORD-SI-004",
+        "priority": "NORMAL",
+        "special_instructions": "Delivery to Kerala coastal store",
+        "requested_delivery_date": "2025-07-20T16:00:00Z",
+        "delivery_address": {
+            "street": "150 Marine Drive",
+            "city": "Kochi",
+            "state": "Kerala",
+            "postal_code": "682031",
+            "country": "India"
+        },
+        "retailer_info": {
+            "retailer_id": "KL001",
+            "retailer_name": "Kochi Marine Foods",
+            "contact_person": "Mohanan Nair",
+            "email": "mohanan@kochimarine.com"
+        },
+        "sku_code": "FB003",
+        "product_name": "Tata Tea Gold 250g",
+        "category": "Beverages",
+        "brand": "Tata Tea",
+        "quantity": 25,
+        "weight_kg": 6.25,
+        "volume_m3": 0.00625,
+        "customer_name": "Mohanan Nair",
+        "customer_email": "mohanan@kochimarine.com",
+        "customer_phone": "+91-9876543223",
+        "order_date": "2025-07-11T11:00:00Z",
+        "payment_status": "UNPAID",
+        "shipping_method": "STANDARD",
+        "notes": "Specialty store coastal delivery"
+    }
+]

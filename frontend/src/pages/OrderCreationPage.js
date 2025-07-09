@@ -468,7 +468,7 @@ const OrderCreationPage = () => {
                 </div>
                 <div className="divide-y divide-gray-200">
                   {filteredOrders
-                    .filter(order => ['UPLOADED', 'PROCESSING', 'PENDING_INFO','MISSING_INFO'].includes(order.status))
+                    .filter(order => ['UPLOADED', 'PROCESSING', 'PENDING_INFO','MISSING_INFO', 'NEEDS_REVIEW'].includes(order.status))
                     .map((order) => (
                       <div key={order.id} className="px-6 py-4">
                         <div className="flex items-center justify-between">

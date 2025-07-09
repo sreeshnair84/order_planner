@@ -191,6 +191,7 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
       'PROCESSED': 'bg-green-100 text-green-800',
       'VALIDATION_FAILED': 'bg-red-100 text-red-800',
       'MISSING_INFO': 'bg-orange-100 text-orange-800',
+      "NEEDS_REVIEW": 'bg-orange-200 text-orange-900',
       'COMPLETED': 'bg-green-100 text-green-800',
       'FAILED': 'bg-red-100 text-red-800',
     };
@@ -379,40 +380,27 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
               )}
               
               {/* Retailer Contact Information */}
-              {orderDetails?.retailer_info && (
+              {orderDetails?.retailer_info?.database_match && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <div className="flex items-center space-x-2">
                     <User className="h-5 w-5 text-green-600" />
                     <h3 className="font-medium text-green-900">Retailer Contact</h3>
                   </div>
+                  
                   <div className="mt-2 space-y-1 text-sm text-green-800">
-                    {orderDetails.retailer_info.name && (
-                      <p className="font-medium">{orderDetails.retailer_info.name}</p>
+                    {orderDetails.retailer_info.database_match.matched_retailer.name && (
+                      <p className="font-medium">{orderDetails.retailer_info.database_match.matched_retailer.name}</p>
                     )}
-                    {orderDetails.retailer_info.contact_person && (
-                      <p>Contact: {orderDetails.retailer_info.contact_person}</p>
+                    {orderDetails.retailer_info.database_match.matched_retailer.contact_person && (
+                      <p>Contact: {orderDetails.retailer_info.database_match.matched_retailer.contact_person}</p>
                     )}
-                    {orderDetails.retailer_info.email && (
-                      <p>Email: {orderDetails.retailer_info.email}</p>
+                    {orderDetails.retailer_info.database_match.matched_retailer.email && (
+                      <p>Email: {orderDetails.retailer_info.database_match.matched_retailer.email}</p>
                     )}
-                    {orderDetails.retailer_info.phone && (
-                      <p>Phone: {orderDetails.retailer_info.phone}</p>
+                    {orderDetails.retailer_info.database_match.matched_retailer.phone && (
+                      <p>Phone: {orderDetails.retailer_info.database_match.matched_retailer.phone}</p>
                     )}
-                    {orderDetails.retailer_info.address && (
-                      <div className="mt-2">
-                        <p className="font-medium">Address:</p>
-                        {orderDetails.retailer_info.address.street && (
-                          <p className="ml-2">{orderDetails.retailer_info.address.street}</p>
-                        )}
-                        {(orderDetails.retailer_info.address.city || orderDetails.retailer_info.address.state || orderDetails.retailer_info.address.zip_code) && (
-                          <p className="ml-2">
-                            {orderDetails.retailer_info.address.city && `${orderDetails.retailer_info.address.city}, `}
-                            {orderDetails.retailer_info.address.state && `${orderDetails.retailer_info.address.state} `}
-                            {orderDetails.retailer_info.address.zip_code}
-                          </p>
-                        )}
-                      </div>
-                    )}
+                    
                   </div>
                 </div>
               )}
@@ -1251,6 +1239,7 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
               const renderErrorActions = (email) => {
                 const isErrorEmail = email.email_type === 'VALIDATION_ERROR' || 
                                    email.email_type === 'MISSING_INFO_REQUEST' ||
+                                   email.email_type === 'NEEDS_REVIEW' ||
                                    email.subject?.toLowerCase().includes('error') ||
                                    email.subject?.toLowerCase().includes('validation') ||
                                    email.subject?.toLowerCase().includes('failed');
@@ -1413,6 +1402,7 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
                                   <span className={`px-2 py-1 text-xs rounded-md ${
                                     email.email_type === 'VALIDATION_ERROR' ? 'bg-red-50 text-red-700' :
                                     email.email_type === 'MISSING_INFO_REQUEST' ? 'bg-orange-50 text-orange-700' :
+                                    email.email_type === 'NEEDS_REVIEW' ? 'bg-yellow-50 text-yellow-700' :
                                     'bg-blue-50 text-blue-700'
                                   }`}>
                                     {email.email_type.replace(/_/g, ' ')}

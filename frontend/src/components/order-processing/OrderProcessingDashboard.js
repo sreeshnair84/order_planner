@@ -516,6 +516,7 @@ const OrderProcessingDashboard = ({ orderId }) => {
                 <span className={`ml-1 px-2 py-1 text-xs rounded ${
                   orderDetails.current_status === 'VALIDATED' ? 'bg-green-100 text-green-800' :
                   orderDetails.current_status === 'MISSING_INFO' ? 'bg-yellow-100 text-yellow-800' :
+                  orderDetails.current_status === 'NEEDS_REVIEW' ? 'bg-orange-200 text-orange-900' :
                   orderDetails.current_status === 'VALIDATION_FAILED' ? 'bg-red-100 text-red-800' :
                   'bg-gray-100 text-gray-800'
                 }`}>

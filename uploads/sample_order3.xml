@@ -1,0 +1,68 @@
+<orders>
+    <order>
+        <order_number>ORD-SI-003</order_number>
+        <priority>HIGH</priority>
+        <special_instructions>Urgent delivery for Hyderabad tech mall</special_instructions>
+        <requested_delivery_date>2025-07-12T11:00:00Z</requested_delivery_date>
+        <delivery_address>
+            <street>200 HITEC City</street>
+            <city>Hyderabad</city>
+            <state>Telangana</state>
+            <postal_code>500081</postal_code>
+            <country>India</country>
+        </delivery_address>
+        <retailer_info>
+            <retailer_id>AP001</retailer_id>
+            <retailer_name>Hyderabad Tech Mall</retailer_name>
+            <contact_person>Ramesh Reddy</contact_person>
+            <email>ramesh@hydtechmall.com</email>
+        </retailer_info>
+        <sku_code>PC002</sku_code>
+        <product_name>Head &amp; Shoulders Anti-Dandruff Shampoo 340ml</product_name>
+        <category>Hair Care</category>
+        <brand>Head &amp; Shoulders</brand>
+        <quantity>35</quantity>
+        <weight_kg>12.6</weight_kg>
+        <volume_m3>0.01225</volume_m3>
+        <customer_name>Ramesh Reddy</customer_name>
+        <customer_email>ramesh@hydtechmall.com</customer_email>
+        <customer_phone>+91-9876543219</customer_phone>
+        <order_date>2025-07-09T14:15:00Z</order_date>
+        <payment_status>PAID</payment_status>
+        <shipping_method>EXPRESS</shipping_method>
+        <notes>High-demand personal care products</notes>
+    </order>
+    <order>
+        <order_number>ORD-SI-003</order_number>
+        <priority>HIGH</priority>
+        <special_instructions>Urgent delivery for Hyderabad tech mall</special_instructions>
+        <requested_delivery_date>2025-07-12T11:00:00Z</requested_delivery_date>
+        <delivery_address>
+            <street>200 HITEC City</street>
+            <city>Hyderabad</city>
+            <state>Telangana</state>
+            <postal_code>500081</postal_code>
+            <country>India</country>
+        </delivery_address>
+        <retailer_info>
+            <retailer_id>AP001</retailer_id>
+            <retailer_name>Hyderabad Tech Mall</retailer_name>
+            <contact_person>Ramesh Reddy</contact_person>
+            <email>ramesh@hydtechmall.com</email>
+        </retailer_info>
+        <sku_code>FB002</sku_code>
+        <product_name>Bru Instant Coffee 50g</product_name>
+        <category>Beverages</category>
+        <brand>Bru</brand>
+        <quantity>60</quantity>
+        <weight_kg>3.6</weight_kg>
+        <volume_m3>0.006</volume_m3>
+        <customer_name>Ramesh Reddy</customer_name>
+        <customer_email>ramesh@hydtechmall.com</customer_email>
+        <customer_phone>+91-9876543219</customer_phone>
+        <order_date>2025-07-09T14:15:00Z</order_date>
+        <payment_status>PAID</payment_status>
+        <shipping_method>EXPRESS</shipping_method>
+        <notes>High-demand personal care products</notes>
+    </order>
+</orders>
