@@ -10,7 +10,8 @@ import { Alert, AlertDescription } from '../ui/alert';
 import { Badge } from '../ui/badge';
 import { Progress } from '../ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { getApiUrl } from '../../utils/api';
+import { getApiUrl } from '../../utils/apiConfig';
+import { orderProcessingService } from '../../services/orderProcessingService';
 
 const UnifiedOrderProcessor = ({ orderId, onProcessingComplete }) => {
   const [processing, setProcessing] = useState(false);
@@ -29,16 +30,8 @@ const UnifiedOrderProcessor = ({ orderId, onProcessingComplete }) => {
 
   const loadOrderSummary = async () => {
     try {
-      const response = await fetch(getApiUrl(`api/orders/${orderId}/summary-unified`), {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setOrderSummary(data.data);
-      }
+      const data = await orderProcessingService.getOrderSummaryUnified(orderId);
+      setOrderSummary(data.data);
     } catch (error) {
       console.error('Error loading order summary:', error);
     }
@@ -46,11 +39,8 @@ const UnifiedOrderProcessor = ({ orderId, onProcessingComplete }) => {
 
   const loadProcessingMethods = async () => {
     try {
-      const response = await fetch(getApiUrl('api/orders/processing/methods'));
-      if (response.ok) {
-        const data = await response.json();
-        setAvailableMethods(data.methods);
-      }
+      const data = await orderProcessingService.getProcessingMethods();
+      setAvailableMethods(data.methods);
     } catch (error) {
       console.error('Error loading processing methods:', error);
     }
@@ -66,32 +56,18 @@ const UnifiedOrderProcessor = ({ orderId, onProcessingComplete }) => {
       setCurrentStep('Initializing...');
       setProgress(10);
 
-      const response = await fetch(getApiUrl(`api/orders/${orderId}/process-unified`), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          use_agent: processingMethod === 'ai_agent'
-        })
+      const data = await orderProcessingService.processOrderUnified(orderId, {
+        use_agent: processingMethod === 'ai_agent'
       });
 
       setProgress(50);
       setCurrentStep('Processing...');
-
-      if (response.ok) {
-        const data = await response.json();
-        setProgress(100);
-        setCurrentStep('Completed');
-        setResults(data);
-        
-        if (onProcessingComplete) {
-          onProcessingComplete(data);
-        }
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Processing failed');
+      setProgress(100);
+      setCurrentStep('Completed');
+      setResults(data);
+      
+      if (onProcessingComplete) {
+        onProcessingComplete(data);
       }
     } catch (error) {
       setError(error.message);
@@ -108,27 +84,14 @@ const UnifiedOrderProcessor = ({ orderId, onProcessingComplete }) => {
     try {
       setCurrentStep(`Processing ${stepName}...`);
 
-      const response = await fetch(getApiUrl(`api/orders/${orderId}/process-step`), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          step_name: stepName,
-          use_agent: processingMethod === 'ai_agent'
-        })
+      const data = await orderProcessingService.processOrderStep(orderId, {
+        step_name: stepName,
+        use_agent: processingMethod === 'ai_agent'
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setResults(data);
-        setCurrentStep(`${stepName} completed`);
-        await loadOrderSummary(); // Refresh summary
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || `${stepName} processing failed`);
-      }
+      setResults(data);
+      setCurrentStep(`${stepName} completed`);
+      await loadOrderSummary(); // Refresh summary
     } catch (error) {
       setError(error.message);
       setCurrentStep(`${stepName} failed`);
@@ -144,26 +107,13 @@ const UnifiedOrderProcessor = ({ orderId, onProcessingComplete }) => {
     try {
       setCurrentStep(`Retrying ${stepName}...`);
 
-      const response = await fetch(getApiUrl(`api/orders/${orderId}/retry-step`), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          step_name: stepName
-        })
+      const data = await orderProcessingService.retryOrderStep(orderId, {
+        step_name: stepName
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setResults(data);
-        setCurrentStep(`${stepName} retry completed`);
-        await loadOrderSummary();
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || `${stepName} retry failed`);
-      }
+      setResults(data);
+      setCurrentStep(`${stepName} retry completed`);
+      await loadOrderSummary();
     } catch (error) {
       setError(error.message);
       setCurrentStep(`${stepName} retry failed`);

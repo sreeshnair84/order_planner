@@ -16,7 +16,7 @@ import {
   Play,
   Pause
 } from 'lucide-react';
-import { getApiUrl } from '../../utils/apiConfig';
+import { orderProcessingService } from '../../services/orderProcessingService';
 
 // Import the menu components
 import OrderProcessingMenu from './OrderProcessingMenu';
@@ -34,32 +34,15 @@ const OrderProcessingMainMenu = ({ orderId, onClose }) => {
   const loadOrderOverview = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [statusResponse, metricsResponse, notificationsResponse] = await Promise.all([
-        fetch(getApiUrl(`api/orders/${orderId}/status`), {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        }),
-        fetch(getApiUrl(`api/orders/${orderId}/processing-metrics`), {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        }),
-        fetch(getApiUrl(`api/orders/${orderId}/notifications`), {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        })
+      const [statusData, metricsData, notificationsData] = await Promise.all([
+        orderProcessingService.getOrderStatus(orderId),
+        orderProcessingService.getOrderProcessingMetrics(orderId),
+        orderProcessingService.getOrderNotifications(orderId)
       ]);
 
-      if (statusResponse.ok) {
-        const statusData = await statusResponse.json();
-        setOrderStatus(statusData.data);
-      }
-
-      if (metricsResponse.ok) {
-        const metricsData = await metricsResponse.json();
-        setProcessingMetrics(metricsData.data);
-      }
-
-      if (notificationsResponse.ok) {
-        const notificationsData = await notificationsResponse.json();
-        setNotifications(notificationsData.data || []);
-      }
+      setOrderStatus(statusData.data || statusData);
+      setProcessingMetrics(metricsData.data || metricsData);
+      setNotifications(notificationsData.data || notificationsData || []);
     } catch (error) {
       console.error('Error loading order overview:', error);
     } finally {
@@ -162,18 +145,8 @@ const OrderProcessingMainMenu = ({ orderId, onClose }) => {
 
   const handleQuickAction = async (action) => {
     try {
-      const endpoint = getApiUrl(`api/orders/${orderId}/${action}`);
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (response.ok) {
-        await loadOrderOverview();
-      }
+      await orderProcessingService.executeQuickAction(orderId, action);
+      await loadOrderOverview();
     } catch (error) {
       console.error(`Error executing quick action ${action}:`, error);
     }

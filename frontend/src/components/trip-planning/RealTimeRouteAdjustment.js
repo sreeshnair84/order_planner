@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { tripPlanningService } from '../../services/tripPlanningService';
 // import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 // import L from 'leaflet';
 
@@ -65,20 +66,8 @@ const RealTimeRouteAdjustment = ({ optimizedRoutes, onRouteUpdate }) => {
   const handleRouteReorder = async (routeId, newSequence) => {
     setIsAdjusting(true);
     try {
-      // Call API to reorder route
-      const response = await fetch(`/api/trips/routes/${routeId}/reorder`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ new_sequence: newSequence })
-      });
-
-      if (response.ok) {
-        const updatedRoute = await response.json();
-        onRouteUpdate(updatedRoute);
-      }
+      const updatedRoute = await tripPlanningService.reorderRoute(routeId, { new_sequence: newSequence });
+      onRouteUpdate(updatedRoute);
     } catch (error) {
       console.error('Error reordering route:', error);
     } finally {
@@ -89,23 +78,14 @@ const RealTimeRouteAdjustment = ({ optimizedRoutes, onRouteUpdate }) => {
   const handleOptimizeForConditions = async (routeId, conditions) => {
     setIsAdjusting(true);
     try {
-      const response = await fetch(`/api/trips/routes/${routeId}/optimize-realtime`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          traffic_conditions: conditions.traffic,
-          delivery_delays: conditions.delays,
-          weather_conditions: conditions.weather
-        })
-      });
-
-      if (response.ok) {
-        const optimizedRoute = await response.json();
-        onRouteUpdate(optimizedRoute);
-      }
+      const optimizationData = {
+        traffic_conditions: conditions.traffic,
+        delivery_delays: conditions.delays,
+        weather_conditions: conditions.weather
+      };
+      
+      const optimizedRoute = await tripPlanningService.optimizeRouteRealTime(routeId, optimizationData);
+      onRouteUpdate(optimizedRoute);
     } catch (error) {
       console.error('Error optimizing route for conditions:', error);
     } finally {

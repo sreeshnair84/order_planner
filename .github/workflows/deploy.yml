@@ -141,8 +141,7 @@ jobs:
         cd frontend
         npm run build
       env:
-        REACT_APP_API_URL: https://${{ needs.infrastructure.outputs.function-app-name }}.azurewebsites.net/api
-    
+        REACT_APP_API_URL: https://${{ needs.infrastructure.outputs.function-app-name }}.azurewebsites.net
     - name: Create deployment package
       run: |
         cd frontend

@@ -198,7 +198,7 @@ REDIS_URL=redis://localhost:6379
 
 #### Frontend (.env)
 ```env
-REACT_APP_API_URL=http://localhost:8000/api
+REACT_APP_API_URL=http://localhost:8000
 ```
 
 ## 📦 SKU Item Processing

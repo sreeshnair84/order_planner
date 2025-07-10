@@ -1,13 +1,14 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://dispatchplannerapp.wonderfultree-66eac7c6.eastus.azurecontainerapps.io';
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: `${API_BASE_URL.replace('/api', '')}/api`,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 30000, // 30 seconds timeout
 });
 
 // Request interceptor to add auth token
@@ -36,13 +37,14 @@ api.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refresh_token');
         if (refreshToken) {
-          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, {
+          // Create a new axios instance for refresh to avoid circular dependency
+          const refreshResponse = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, {
             headers: {
               Authorization: `Bearer ${refreshToken}`,
             },
           });
 
-          const { access_token, refresh_token } = response.data;
+          const { access_token, refresh_token } = refreshResponse.data;
           localStorage.setItem('access_token', access_token);
           localStorage.setItem('refresh_token', refresh_token);
 

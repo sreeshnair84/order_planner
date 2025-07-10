@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { managementService } from '../services/managementService';
 import { Plus, Edit, Trash2, Users, Package, Search, Eye, Link, Unlink } from 'lucide-react';
 
 const ManufacturerManagement = () => {
@@ -36,20 +37,11 @@ const ManufacturerManagement = () => {
 
   const fetchManufacturers = async () => {
     try {
-      const response = await fetch('/api/manufacturers', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      // Ensure data is an array
+      const data = await managementService.getManufacturers();
       setManufacturers(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching manufacturers:', error);
-      setManufacturers([]); // Set to empty array on error
+      setManufacturers([]);
     } finally {
       setLoading(false);
     }
@@ -57,30 +49,18 @@ const ManufacturerManagement = () => {
 
   const fetchRetailers = async () => {
     try {
-      const response = await fetch('/api/management/retailers', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      // Handle both paginated and direct array responses
+      const data = await managementService.getRetailers();
       const retailersData = data.retailers || data;
       setRetailers(Array.isArray(retailersData) ? retailersData : []);
     } catch (error) {
       console.error('Error fetching retailers:', error);
-      setRetailers([]); // Set to empty array on error
+      setRetailers([]);
     }
   };
 
   const fetchManufacturerOrders = async (manufacturerId) => {
     try {
-      const response = await fetch(`/api/manufacturers/${manufacturerId}/orders`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-      });
-      const data = await response.json();
+      const data = await managementService.getManufacturerOrders(manufacturerId);
       setManufacturerOrders(data);
     } catch (error) {
       console.error('Error fetching manufacturer orders:', error);
@@ -90,40 +70,30 @@ const ManufacturerManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const url = editingManufacturer 
-        ? `/api/manufacturers/${editingManufacturer.id}` 
-        : '/api/manufacturers';
-      const method = editingManufacturer ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (response.ok) {
-        fetchManufacturers();
-        setShowForm(false);
-        setEditingManufacturer(null);
-        setFormData({
-          name: '',
-          code: '',
-          contact_email: '',
-          contact_phone: '',
-          address: '',
-          city: '',
-          state: '',
-          zip_code: '',
-          country: '',
-          notes: '',
-          lead_time_days: 7,
-          min_order_value: 0,
-          preferred_payment_terms: ''
-        });
+      if (editingManufacturer) {
+        await managementService.updateManufacturer(editingManufacturer.id, formData);
+      } else {
+        await managementService.createManufacturer(formData);
       }
+      
+      fetchManufacturers();
+      setShowForm(false);
+      setEditingManufacturer(null);
+      setFormData({
+        name: '',
+        code: '',
+        contact_email: '',
+        contact_phone: '',
+        address: '',
+        city: '',
+        state: '',
+        zip_code: '',
+        country: '',
+        notes: '',
+        lead_time_days: 7,
+        min_order_value: 0,
+        preferred_payment_terms: ''
+      });
     } catch (error) {
       console.error('Error saving manufacturer:', error);
     }
@@ -152,13 +122,8 @@ const ManufacturerManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this manufacturer?')) {
       try {
-        const response = await fetch(`/api/manufacturers/${id}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-        });
-        if (response.ok) {
-          fetchManufacturers();
-        }
+        await managementService.deleteManufacturer(id);
+        fetchManufacturers();
       } catch (error) {
         console.error('Error deleting manufacturer:', error);
       }
@@ -167,14 +132,9 @@ const ManufacturerManagement = () => {
 
   const handleAssignRetailer = async (manufacturerId, retailerId) => {
     try {
-      const response = await fetch(`/api/manufacturers/${manufacturerId}/assign-retailer/${retailerId}`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-      });
-      if (response.ok) {
-        fetchManufacturers();
-        setShowAssignModal(false);
-      }
+      await managementService.assignRetailerToManufacturer(manufacturerId, retailerId);
+      fetchManufacturers();
+      setShowAssignModal(false);
     } catch (error) {
       console.error('Error assigning retailer:', error);
     }
@@ -182,13 +142,8 @@ const ManufacturerManagement = () => {
 
   const handleUnassignRetailer = async (manufacturerId, retailerId) => {
     try {
-      const response = await fetch(`/api/manufacturers/${manufacturerId}/unassign-retailer/${retailerId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-      });
-      if (response.ok) {
-        fetchManufacturers();
-      }
+      await managementService.unassignRetailerFromManufacturer(manufacturerId, retailerId);
+      fetchManufacturers();
     } catch (error) {
       console.error('Error unassigning retailer:', error);
     }

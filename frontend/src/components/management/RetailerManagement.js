@@ -14,6 +14,7 @@ import {
   X,
   Save
 } from 'lucide-react';
+import { managementService } from '../../services/managementService';
 
 const RetailerManagement = () => {
   const [retailers, setRetailers] = useState([]);
@@ -45,24 +46,13 @@ const RetailerManagement = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [retailersResponse, manufacturersResponse] = await Promise.all([
-        fetch('/api/management/retailers', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-        }),
-        fetch('/api/management/manufacturers/dropdown', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-        })
+      const [retailersData, manufacturersData] = await Promise.all([
+        managementService.getRetailers(),
+        managementService.getManufacturersDropdown()
       ]);
 
-      if (retailersResponse.ok) {
-        const retailersData = await retailersResponse.json();
-        setRetailers(retailersData.retailers || []);
-      }
-
-      if (manufacturersResponse.ok) {
-        const manufacturersData = await manufacturersResponse.json();
-        setManufacturers(manufacturersData || []);
-      }
+      setRetailers(retailersData.retailers || []);
+      setManufacturers(manufacturersData || []);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -73,29 +63,17 @@ const RetailerManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const endpoint = editingRetailer 
-        ? `/api/management/retailers/${editingRetailer.id}`
-        : '/api/management/retailers';
-      
-      const response = await fetch(endpoint, {
-        method: editingRetailer ? 'PUT' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (response.ok) {
-        await loadData();
-        handleCloseModal();
+      if (editingRetailer) {
+        await managementService.updateRetailer(editingRetailer.id, formData);
       } else {
-        const errorData = await response.json();
-        alert(`Error: ${errorData.detail || 'Failed to save retailer'}`);
+        await managementService.createRetailer(formData);
       }
+      
+      await loadData();
+      handleCloseModal();
     } catch (error) {
       console.error('Error saving retailer:', error);
-      alert('Error saving retailer');
+      alert(`Error: ${error.detail || error.message || 'Failed to save retailer'}`);
     }
   };
 
@@ -122,14 +100,8 @@ const RetailerManagement = () => {
     if (!window.confirm('Are you sure you want to delete this retailer?')) return;
     
     try {
-      const response = await fetch(`/api/management/retailers/${retailerId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-      });
-
-      if (response.ok) {
-        await loadData();
-      }
+      await managementService.deleteRetailer(retailerId);
+      await loadData();
     } catch (error) {
       console.error('Error deleting retailer:', error);
     }

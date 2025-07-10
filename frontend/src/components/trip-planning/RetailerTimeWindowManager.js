@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { tripPlanningService } from '../../services/tripPlanningService';
 
 const RetailerTimeWindowManager = ({ optimizedRoutes, onTimeWindowUpdate }) => {
   const [timeWindows, setTimeWindows] = useState({});
@@ -137,22 +138,16 @@ const RetailerTimeWindowManager = ({ optimizedRoutes, onTimeWindowUpdate }) => {
 
   const resolveConflict = async (conflict) => {
     try {
-      const response = await fetch('/api/trips/resolve-time-conflict', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          conflict_type: conflict.type,
-          affected_orders: conflict.orders,
-          suggested_resolution: conflict.suggestedFix
-        })
-      });
-
-      if (response.ok) {
-        const resolution = await response.json();
-        // Apply the resolution to time windows
+      const conflictData = {
+        conflict_type: conflict.type,
+        affected_orders: conflict.orders,
+        suggested_resolution: conflict.suggestedFix
+      };
+      
+      const resolution = await tripPlanningService.resolveTimeConflict(conflictData);
+      
+      // Apply the resolution to time windows
+      if (resolution.updated_windows) {
         resolution.updated_windows.forEach(window => {
           updateTimeWindow(window.order_id, 'current_window', 'start', window.start);
           updateTimeWindow(window.order_id, 'current_window', 'end', window.end);

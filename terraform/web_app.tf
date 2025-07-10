@@ -25,7 +25,7 @@ resource "azurerm_linux_web_app" "frontend" {
   }
   
   app_settings = {
-    "REACT_APP_API_URL" = "https://${azurerm_linux_function_app.backend.default_hostname}/api"
+    "REACT_APP_API_URL" = "https://${azurerm_linux_function_app.backend.default_hostname}"
     "SCM_DO_BUILD_DURING_DEPLOYMENT" = "true"
     "WEBSITE_NODE_DEFAULT_VERSION" = "~18"
   }

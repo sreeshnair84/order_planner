@@ -1,111 +1,181 @@
-import axios from 'axios';
+import api from './apiClient';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
-
-// Create axios instance with default config
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 30000, // 30 seconds timeout for optimization requests
-});
-
-// Add auth header to all requests
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Trip Planning API calls
-export const tripPlanningAPI = {
+export const tripPlanningService = {
   // Get available orders for trip planning
-  getAvailableOrders: async () => {
-    const response = await api.get('/orders');
-    return response.data;
+  async getAvailableOrders() {
+    try {
+      const response = await api.get('/trips/orders');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
   },
 
   // Get manufacturing locations
-  getManufacturingLocations: async () => {
-    const response = await api.get('/trips/manufacturing-locations');
-    return response.data;
+  async getManufacturingLocations() {
+    try {
+      const response = await api.get('/trips/manufacturing-locations');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
   },
 
   // Get available trucks
-  getTrucks: async (locationId) => {
-    const response = await api.get(`/trips/trucks?location_id=${locationId}`);
-    return response.data;
+  async getTrucks(locationId) {
+    try {
+      const response = await api.get(`/trips/trucks?location_id=${locationId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
   },
 
   // Optimize trip routes
-  optimizeRoutes: async (optimizationData) => {
-    const response = await api.post('/trips/optimize-routes', optimizationData);
-    return response.data;
+  async optimizeRoutes(optimizationData) {
+    try {
+      const response = await api.post('/trips/optimize-routes', optimizationData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
   },
 
   // Optimize SKU consolidation
-  optimizeSKUs: async (consolidationData) => {
-    const response = await api.post('/trips/optimize-skus', consolidationData);
-    return response.data;
+  async optimizeSKUs(consolidationData) {
+    try {
+      const response = await api.post('/trips/optimize-skus', consolidationData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
   },
 
   // Get route details
-  getRouteDetails: async (routeId) => {
-    const response = await api.get(`/trips/routes/${routeId}`);
-    return response.data;
+  async getRouteDetails(routeId) {
+    try {
+      const response = await api.get(`/trips/routes/${routeId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
   },
 
   // Get trip analytics
-  getTripAnalytics: async (params) => {
-    const response = await api.get('/trips/analytics', { params });
-    return response.data;
+  async getTripAnalytics(params) {
+    try {
+      const response = await api.get('/trips/analytics', { params });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
   },
 
   // Assign truck to route
-  assignTruck: async (routeId, truckId) => {
-    const response = await api.post(`/trips/routes/${routeId}/assign-truck`, { truck_id: truckId });
-    return response.data;
+  async assignTruck(routeId, truckId) {
+    try {
+      const response = await api.post(`/trips/routes/${routeId}/assign-truck`, { truck_id: truckId });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
   },
+
+  // Resolve time conflicts
+  async resolveTimeConflict(conflictData) {
+    try {
+      const response = await api.post('/trips/resolve-time-conflict', conflictData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Reorder route
+  async reorderRoute(routeId, reorderData) {
+    try {
+      const response = await api.post(`/trips/routes/${routeId}/reorder`, reorderData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  // Real-time route optimization
+  async optimizeRouteRealTime(routeId, optimizationData) {
+    try {
+      const response = await api.post(`/trips/routes/${routeId}/optimize-realtime`, optimizationData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  }
 };
 
-// Logistics API calls
-export const logisticsAPI = {
+export const logisticsService = {
   // Get performance metrics
-  getPerformanceMetrics: async (params) => {
-    const response = await api.get('/logistics/performance-metrics', { params });
-    return response.data;
+  async getPerformanceMetrics(params) {
+    try {
+      const response = await api.get('/logistics/performance-metrics', { params });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
   },
 
   // Get capacity planning data
-  getCapacityPlanning: async (params) => {
-    const response = await api.get('/logistics/capacity-planning', { params });
-    return response.data;
+  async getCapacityPlanning(params) {
+    try {
+      const response = await api.get('/logistics/capacity-planning', { params });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
   },
 
   // Get real-time tracking
-  getRealTimeTracking: async (params) => {
-    const response = await api.get('/logistics/real-time-tracking', { params });
-    return response.data;
+  async getRealTimeTracking(params) {
+    try {
+      const response = await api.get('/logistics/real-time-tracking', { params });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
   },
 
   // Get optimization logs
-  getOptimizationLogs: async (params) => {
-    const response = await api.get('/logistics/optimization-logs', { params });
-    return response.data;
+  async getOptimizationLogs(params) {
+    try {
+      const response = await api.get('/logistics/optimization-logs', { params });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
   },
 
   // Get delivery tracking
-  getDeliveryTracking: async (orderId) => {
-    const response = await api.get(`/logistics/delivery-tracking/${orderId}`);
-    return response.data;
+  async getDeliveryTracking(orderId) {
+    try {
+      const response = await api.get(`/logistics/delivery-tracking/${orderId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
   },
 
   // Optimize logistics
-  optimizeLogistics: async (optimizationData) => {
-    const response = await api.post('/logistics/optimize-logistics', optimizationData);
-    return response.data;
-  },
+  async optimizeLogistics(optimizationData) {
+    try {
+      const response = await api.post('/logistics/optimize-logistics', optimizationData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  }
 };
 
-// Export default API instance for other uses
+// Legacy exports for backward compatibility
+export const tripPlanningAPI = tripPlanningService;
+export const logisticsAPI = logisticsService;
+
 export default api;

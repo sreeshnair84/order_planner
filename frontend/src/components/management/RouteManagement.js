@@ -15,6 +15,7 @@ import {
   X,
   Save
 } from 'lucide-react';
+import { managementService } from '../../services/managementService';
 
 const RouteManagement = () => {
   const [routes, setRoutes] = useState([]);
@@ -59,29 +60,21 @@ const RouteManagement = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        per_page: perPage.toString(),
-        active_only: activeFilter === 'active' ? 'true' : 'false'
-      });
+      const params = {
+        page: currentPage,
+        per_page: perPage,
+        active_only: activeFilter === 'active'
+      };
       
       if (searchTerm) {
-        params.append('search', searchTerm);
+        params.search = searchTerm;
       }
       
       if (selectedManufacturer) {
-        params.append('manufacturer_id', selectedManufacturer);
+        params.manufacturer_id = selectedManufacturer;
       }
 
-      const response = await fetch(`/api/management/routes?${params}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await managementService.getRoutes(params);
       setRoutes(Array.isArray(data.routes) ? data.routes : []);
       setTotal(data.total || 0);
       setTotalPages(Math.ceil((data.total || 0) / perPage));
@@ -95,15 +88,7 @@ const RouteManagement = () => {
 
   const loadManufacturers = async () => {
     try {
-      const response = await fetch('/api/management/manufacturers/dropdown', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await managementService.getManufacturersDropdown();
       setManufacturers(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error loading manufacturers:', error);
@@ -114,37 +99,27 @@ const RouteManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const endpoint = editingRoute 
-        ? `/api/management/routes/${editingRoute.id}`
-        : '/api/management/routes';
-      
-      const response = await fetch(endpoint, {
-        method: editingRoute ? 'PUT' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        },
-        body: JSON.stringify({
-          ...formData,
-          manufacturer_id: parseInt(formData.manufacturer_id),
-          distance_km: formData.distance_km ? parseInt(formData.distance_km) : null,
-          estimated_transit_days: parseInt(formData.estimated_transit_days),
-          cost_per_km: parseInt(formData.cost_per_km),
-          max_weight_kg: formData.max_weight_kg ? parseInt(formData.max_weight_kg) : null,
-          max_volume_m3: formData.max_volume_m3 ? parseInt(formData.max_volume_m3) : null,
-        })
-      });
+      const routeData = {
+        ...formData,
+        manufacturer_id: parseInt(formData.manufacturer_id),
+        distance_km: formData.distance_km ? parseInt(formData.distance_km) : null,
+        estimated_transit_days: parseInt(formData.estimated_transit_days),
+        cost_per_km: parseInt(formData.cost_per_km),
+        max_weight_kg: formData.max_weight_kg ? parseInt(formData.max_weight_kg) : null,
+        max_volume_m3: formData.max_volume_m3 ? parseInt(formData.max_volume_m3) : null,
+      };
 
-      if (response.ok) {
-        await loadData();
-        handleCloseModal();
+      if (editingRoute) {
+        await managementService.updateRoute(editingRoute.id, routeData);
       } else {
-        const errorData = await response.json();
-        alert(`Error: ${errorData.detail || 'Failed to save route'}`);
+        await managementService.createRoute(routeData);
       }
+      
+      await loadData();
+      handleCloseModal();
     } catch (error) {
       console.error('Error saving route:', error);
-      alert('Error saving route');
+      alert(`Error: ${error.detail || error.message || 'Failed to save route'}`);
     }
   };
 
@@ -175,14 +150,8 @@ const RouteManagement = () => {
     if (!window.confirm('Are you sure you want to delete this route?')) return;
     
     try {
-      const response = await fetch(`/api/management/routes/${routeId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-      });
-
-      if (response.ok) {
-        await loadData();
-      }
+      await managementService.deleteRoute(routeId);
+      await loadData();
     } catch (error) {
       console.error('Error deleting route:', error);
     }

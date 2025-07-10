@@ -1,3 +1,4 @@
+from app.services.azure_functions_client import AzureFunctionsClient
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -25,33 +26,7 @@ async def process_order(
     db: AsyncSession = Depends(get_db)
 ):
     """Process an uploaded order with comprehensive validation and email generation"""
-    try:
-        service = OrderProcessingService(db)
-        result = await service.process_uploaded_order(order_id)
-
-        # If result indicates missing info, log and return details
-        if isinstance(result, dict) and result.get("status") in ["MISSING_INFO", "PENDING_INFO", "VALIDATION_FAILED"]:
-            missing_fields = result.get("missing_fields") or result.get("missing_info") or result.get("missing", [])
-            logger.warning(f"Order {order_id} processing incomplete. Missing fields: {missing_fields}")
-            return {
-                "success": False,
-                "message": "Order processing incomplete due to missing information.",
-                "missing_fields": missing_fields,
-                "data": result
-            }
-
-        return {
-            "success": True,
-            "message": "Order processed successfully",
-            "data": result
-        }
-
-    except Exception as e:
-        logger.error(f"Error processing order {order_id}: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error processing order: {str(e)}"
-        )
+    return await AzureFunctionsClient().process_order_file(order_id)
 
 @router.get("/{order_id}/tracking")
 async def get_order_tracking(

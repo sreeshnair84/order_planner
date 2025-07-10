@@ -89,6 +89,10 @@ class Settings(BaseSettings):
     AZURE_STORAGE_CONNECTION_STRING: Optional[str] = None
     AZURE_STORAGE_CONTAINER: str = "uploads"
     
+    # Azure Functions Configuration
+    AZURE_FUNCTIONS_BASE_URL: Optional[str] = None
+    AZURE_FUNCTIONS_KEY: Optional[str] = None
+    
     
     def __init__(self, **values):
         # Handle comma-separated strings for list fields
