@@ -101,9 +101,9 @@ async def demo_api_endpoints():
     
     endpoints = [
         ("Agent Status", "GET", "/api/ai-agent/status", ""),
-        ("Process Order", "POST", "/api/ai-agent/orders/{order_id}/process", ""),
-        ("Process Step", "POST", "/api/ai-agent/orders/{order_id}/steps/validate", ""),
-        ("Get Threads", "GET", "/api/ai-agent/orders/{order_id}/threads", ""),
+        ("Process Order", "POST", "/api/ai-agent/requestedorders/{order_id}/process", ""),
+        ("Process Step", "POST", "/api/ai-agent/requestedorders/{order_id}/steps/validate", ""),
+        ("Get Threads", "GET", "/api/ai-agent/requestedorders/{order_id}/threads", ""),
     ]
     
     for name, method, endpoint, body in endpoints:

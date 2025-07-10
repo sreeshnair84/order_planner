@@ -15,7 +15,7 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/orders", tags=["Human-in-Loop Email"])
+router = APIRouter(prefix="/api/requestedorders", tags=["Human-in-Loop Email"])
 
 class EmailApprovalRequest(BaseModel):
     approved: bool

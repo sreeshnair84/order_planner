@@ -33,7 +33,7 @@ const UserActionsManager = ({ orderId, onClose }) => {
   const loadUserActions = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/orders/${orderId}/user-actions`, {
+      const response = await fetch(`/api/requestedorders/${orderId}/user-actions`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       
@@ -80,18 +80,18 @@ const UserActionsManager = ({ orderId, onClose }) => {
 
   const getUserActionEndpoint = (action, actionId) => {
     const endpoints = {
-      'complete': `/api/orders/${orderId}/complete-user-action`,
-      'skip': `/api/orders/${orderId}/skip-user-action`,
-      'defer': `/api/orders/${orderId}/defer-user-action`,
-      'correct_missing_fields': `/api/orders/${orderId}/correct-missing-fields`,
-      'correct_validation_errors': `/api/orders/${orderId}/correct-validation-errors`,
-      'approve_changes': `/api/orders/${orderId}/approve-changes`,
-      'reject_changes': `/api/orders/${orderId}/reject-changes`,
-      'provide_feedback': `/api/orders/${orderId}/provide-feedback`,
-      'upload_file': `/api/orders/${orderId}/upload-correction-file`,
-      'download_template': `/api/orders/${orderId}/download-correction-template`
+      'complete': `/api/requestedorders/${orderId}/complete-user-action`,
+      'skip': `/api/requestedorders/${orderId}/skip-user-action`,
+      'defer': `/api/requestedorders/${orderId}/defer-user-action`,
+      'correct_missing_fields': `/api/requestedorders/${orderId}/correct-missing-fields`,
+      'correct_validation_errors': `/api/requestedorders/${orderId}/correct-validation-errors`,
+      'approve_changes': `/api/requestedorders/${orderId}/approve-changes`,
+      'reject_changes': `/api/requestedorders/${orderId}/reject-changes`,
+      'provide_feedback': `/api/requestedorders/${orderId}/provide-feedback`,
+      'upload_file': `/api/requestedorders/${orderId}/upload-correction-file`,
+      'download_template': `/api/requestedorders/${orderId}/download-correction-template`
     };
-    return endpoints[action] || `/api/orders/${orderId}/generic-user-action`;
+    return endpoints[action] || `/api/requestedorders/${orderId}/generic-user-action`;
   };
 
   const openActionModal = (action, actionData = null) => {
@@ -500,7 +500,7 @@ const UserActionModal = ({ action, orderId, onClose, onComplete }) => {
         formDataToSend.append(`file_${index}`, file);
       });
       
-      const response = await fetch(`/api/orders/${orderId}/complete-user-action`, {
+      const response = await fetch(`/api/requestedorders/${orderId}/complete-user-action`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

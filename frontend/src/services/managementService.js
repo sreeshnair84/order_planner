@@ -86,7 +86,7 @@ export const managementService = {
 
   async getManufacturerOrders(manufacturerId) {
     try {
-      const response = await api.get(`/manufacturers/${manufacturerId}/orders`);
+      const response = await api.get(`/manufacturers/${manufacturerId}/requestedorders`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

@@ -254,7 +254,7 @@ async def add_message_to_thread(
             detail=f"Failed to add message: {str(e)}"
         )
 
-@router.get("/orders/{order_id}/threads")
+@router.get("/requestedorders/{order_id}/threads")
 async def list_order_threads(
     order_id: str,
     db: AsyncSession = Depends(get_db),
@@ -312,7 +312,7 @@ async def list_order_threads(
             detail=f"Failed to list threads: {str(e)}"
         )
 
-@router.post("/orders/{order_id}/process-with-ai")
+@router.post("/requestedorders/{order_id}/process-with-ai")
 async def process_order_with_ai(
     order_id: str,
     db: AsyncSession = Depends(get_db),

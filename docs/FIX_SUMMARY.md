@@ -31,7 +31,7 @@ The error was likely caused by:
 ## Files Modified
 1. `backend/app/models/order.py` - Fixed updated_at column
 2. `backend/app/models/user.py` - Fixed updated_at column  
-3. `backend/app/api/orders.py` - Added factory method and updated endpoints
+3. `backend/app/api/requestedorders.py` - Added factory method and updated endpoints
 4. `backend/scripts/fix_updated_at_migration.py` - Migration script for existing data
 
 ## Testing

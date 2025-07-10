@@ -24,7 +24,7 @@ const DashboardPage = () => {
     'orders',
     () => orderService.getOrders({ page: 1, per_page: 10 }),
     {
-      refetchInterval: 30000, // Refresh every 30 seconds
+      refetchInterval: 600000, // Refresh every minute
     }
   );
 
@@ -32,7 +32,7 @@ const DashboardPage = () => {
     'dashboard-stats',
     () => analyticsService.getDashboardStats(30),
     {
-      refetchInterval: 60000, // Refresh every minute
+      refetchInterval: 600000, // Refresh every minute
     }
   );
 
@@ -40,7 +40,7 @@ const DashboardPage = () => {
     'system-metrics',
     () => analyticsService.getPerformanceMetrics(30),
     {
-      refetchInterval: 300000, // Refresh every 5 minutes
+      refetchInterval: 600000, // Refresh every 5 minutes
     }
   );
 

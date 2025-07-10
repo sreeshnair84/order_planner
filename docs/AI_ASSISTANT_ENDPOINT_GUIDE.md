@@ -4,7 +4,7 @@ This document explains how to use the new AI Assistant endpoint for processing o
 
 ## Endpoint Details
 
-**URL:** `POST /api/orders/{order_id}/process-with-assistant`
+**URL:** `POST /api/requestedorders/{order_id}/process-with-assistant`
 
 **Authentication:** Bearer Token (JWT) required
 
@@ -76,7 +76,7 @@ The AI assistant automatically performs the following steps:
 ### 1. Basic Processing (Default Workflow)
 
 ```bash
-curl -X POST "http://localhost:8000/api/orders/123e4567-e89b-12d3-a456-426614174000/process-with-assistant" \
+curl -X POST "http://localhost:8000/api/requestedorders/123e4567-e89b-12d3-a456-426614174000/process-with-assistant" \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
   -H "Content-Type: application/json" \
   -d '{}'
@@ -85,7 +85,7 @@ curl -X POST "http://localhost:8000/api/orders/123e4567-e89b-12d3-a456-426614174
 ### 2. With Custom Message
 
 ```bash
-curl -X POST "http://localhost:8000/api/orders/123e4567-e89b-12d3-a456-426614174000/process-with-assistant" \
+curl -X POST "http://localhost:8000/api/requestedorders/123e4567-e89b-12d3-a456-426614174000/process-with-assistant" \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
   -H "Content-Type: application/json" \
   -d '{
@@ -96,7 +96,7 @@ curl -X POST "http://localhost:8000/api/orders/123e4567-e89b-12d3-a456-426614174
 ### 3. With Custom Instructions
 
 ```bash
-curl -X POST "http://localhost:8000/api/orders/123e4567-e89b-12d3-a456-426614174000/process-with-assistant" \
+curl -X POST "http://localhost:8000/api/requestedorders/123e4567-e89b-12d3-a456-426614174000/process-with-assistant" \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
   -H "Content-Type: application/json" \
   -d '{
@@ -113,7 +113,7 @@ import asyncio
 async def process_order_with_assistant(order_id: str, auth_token: str, custom_message: str = None):
     """Process an order using the AI assistant"""
     
-    url = f"http://localhost:8000/api/orders/{order_id}/process-with-assistant"
+    url = f"http://localhost:8000/api/requestedorders/{order_id}/process-with-assistant"
     headers = {
         "Authorization": f"Bearer {auth_token}",
         "Content-Type": "application/json"
@@ -156,7 +156,7 @@ async def main():
 
 ```javascript
 async function processOrderWithAssistant(orderId, authToken, customMessage = null) {
-    const url = `/api/orders/${orderId}/process-with-assistant`;
+    const url = `/api/requestedorders/${orderId}/process-with-assistant`;
     
     const payload = {};
     if (customMessage) {

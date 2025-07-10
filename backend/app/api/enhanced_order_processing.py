@@ -1,3 +1,4 @@
+from app.services.azure_functions_client import AzureFunctionsClient
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
@@ -14,7 +15,7 @@ import uuid
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/orders", tags=["Enhanced Order Processing"])
+router = APIRouter(prefix="/api/requestedorders", tags=["Enhanced Order Processing"])
 
 class ReprocessOrderRequest(BaseModel):
     new_order_id: Optional[str] = None
@@ -61,8 +62,9 @@ async def reprocess_order(
         # Create new order if new_order_id is provided
         if request.new_order_id:
             # Clone the order with new ID
+            new_id = uuid.uuid4()
             new_order = Order(
-                id=uuid.uuid4(),
+                id=new_id,
                 user_id=current_user.id,
                 order_number=request.new_order_id,
                 original_filename=order.original_filename,
@@ -82,18 +84,7 @@ async def reprocess_order(
             await db.commit()
             
             # Process the new order
-            service = OrderProcessingService(db)
-            result = await service.process_uploaded_order(str(new_order.id))
-            
-            return {
-                "success": True,
-                "message": f"Order reprocessed with new ID: {request.new_order_id}",
-                "data": {
-                    "original_order_id": order_id,
-                    "new_order_id": str(new_order.id),
-                    "processing_result": result
-                }
-            }
+            return await AzureFunctionsClient().process_order_file(new_id)
         else:
             # Reprocess existing order
             # Reset order status
@@ -106,17 +97,9 @@ async def reprocess_order(
             await db.commit()
             
             # Process the order
-            service = OrderProcessingService(db)
-            result = await service.process_uploaded_order(order_id)
+            return await AzureFunctionsClient().process_order_file(order_id)
             
-            return {
-                "success": True,
-                "message": "Order reprocessed successfully",
-                "data": {
-                    "order_id": order_id,
-                    "processing_result": result
-                }
-            }
+            r
             
     except HTTPException:
         raise

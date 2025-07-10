@@ -31,7 +31,8 @@ resource "azurerm_linux_function_app" "backend" {
     cors {
       allowed_origins = [
         "https://${azurerm_linux_web_app.frontend.default_hostname}",
-        "http://localhost:3000"
+        "http://localhost:3000",
+        "https://dispatchplannerapp.wonderfultree-66eac7c6.eastus.azurecontainerapps.io"
       ]
       support_credentials = true
     }
@@ -67,7 +68,7 @@ resource "azurerm_linux_function_app" "backend" {
     "SMTP_PASSWORD" = var.smtp_password
     
     # CORS configuration
-    "ALLOWED_ORIGINS" = "https://${azurerm_linux_web_app.frontend.default_hostname},http://localhost:3000"
+    "ALLOWED_ORIGINS" = "https://${azurerm_linux_web_app.frontend.default_hostname},http://localhost:3000,https://dispatchplannerapp.wonderfultree-66eac7c6.eastus.azurecontainerapps.io"
     
     # Logging
     "LOG_LEVEL" = "INFO"

@@ -206,7 +206,7 @@ async def test_agent_in_api_context():
     
     # Test the endpoint that uses the agent
     response = client.post(
-        "/api/orders/process-with-agent",
+        "/api/requestedorders/process-with-agent",
         json={
             "order_id": "test_order_123",
             "message": "Please process this order completely"

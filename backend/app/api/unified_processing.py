@@ -14,7 +14,7 @@ from app.services.unified_order_processor import UnifiedOrderProcessor
 from agents.order_processing_agent import create_order_processing_agent
 import uuid
 
-router = APIRouter(prefix="/api/orders", tags=["unified-order-processing"])
+router = APIRouter(prefix="/api/requestedorders", tags=["unified-order-processing"])
 logger = logging.getLogger(__name__)
 
 

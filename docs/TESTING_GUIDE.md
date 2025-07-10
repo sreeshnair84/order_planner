@@ -112,17 +112,17 @@ GET /api/ai-agent/status
 
 ### Process Order
 ```bash
-POST /api/ai-agent/orders/{order_id}/process
+POST /api/ai-agent/requestedorders/{order_id}/process
 ```
 
 ### Process Order Step
 ```bash
-POST /api/ai-agent/orders/{order_id}/steps/{step_name}
+POST /api/ai-agent/requestedorders/{order_id}/steps/{step_name}
 ```
 
 ### Get Thread State
 ```bash
-GET /api/ai-agent/orders/{order_id}/threads
+GET /api/ai-agent/requestedorders/{order_id}/threads
 ```
 
 ## 🔍 Troubleshooting

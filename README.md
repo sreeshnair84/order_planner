@@ -254,10 +254,10 @@ The API documentation is automatically generated and available at:
 - `POST /api/auth/refresh` - Refresh access token
 
 #### Orders
-- `POST /api/orders/upload` - Upload order file
-- `GET /api/orders` - Get user orders
-- `GET /api/orders/{order_id}` - Get specific order
-- `DELETE /api/orders/{order_id}` - Cancel order
+- `POST /api/requestedorders/upload` - Upload order file
+- `GET /api/requestedorders` - Get user orders
+- `GET /api/requestedorders/{order_id}` - Get specific order
+- `DELETE /api/requestedorders/{order_id}` - Cancel order
 
 #### Tracking
 - `GET /api/tracking/{order_id}` - Get order tracking

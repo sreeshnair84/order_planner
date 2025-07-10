@@ -28,7 +28,7 @@ def check_backend_structure():
         ("backend/app/services/sku_service.py", "SKU service"),
         ("backend/app/services/order_processing_service.py", "Order processing service"),
         ("backend/app/services/email_service.py", "Enhanced email service"),
-        ("backend/app/api/orders.py", "Enhanced orders API"),
+        ("backend/app/api/requestedorders.py", "Enhanced orders API"),
         ("backend/app/api/tracking.py", "Enhanced tracking API"),
         ("backend/app/database/connection.py", "Database connection"),
         ("backend/scripts/migrate_database.py", "Database migration script"),

@@ -42,28 +42,28 @@ IMPLEMENTED SERVICES:
 API ENDPOINTS IMPLEMENTED:
 =========================
 
-1. POST /api/orders/{order_id}/process
+1. POST /api/requestedorders/{order_id}/process
    - Complete order processing workflow
 
-2. GET /api/orders/{order_id}/tracking  
+2. GET /api/requestedorders/{order_id}/tracking  
    - Comprehensive order tracking history for UI
 
-3. GET /api/orders/{order_id}/validation-summary
+3. GET /api/requestedorders/{order_id}/validation-summary
    - Order validation summary for dashboard
 
-4. POST /api/orders/{order_id}/validate
+4. POST /api/requestedorders/{order_id}/validate
    - Validate order completeness
 
-5. POST /api/orders/{order_id}/generate-email
+5. POST /api/requestedorders/{order_id}/generate-email
    - Generate draft emails for missing information
 
-6. POST /api/orders/{order_id}/parse-file
+6. POST /api/requestedorders/{order_id}/parse-file
    - Parse files with enhanced parser
 
-7. GET /api/orders/{order_id}/emails
+7. GET /api/requestedorders/{order_id}/emails
    - Get all emails related to an order
 
-8. GET /api/orders/tracking/dashboard
+8. GET /api/requestedorders/tracking/dashboard
    - Tracking dashboard for all orders
 
 EMAIL TEMPLATES CREATED:

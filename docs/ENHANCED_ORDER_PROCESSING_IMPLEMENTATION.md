@@ -52,7 +52,7 @@ This implementation provides comprehensive backend functionality for order valid
 
 ### Order Processing Endpoints
 
-#### `POST /api/orders/{order_id}/process`
+#### `POST /api/requestedorders/{order_id}/process`
 Complete order processing workflow with validation and email generation.
 
 **Response:**
@@ -70,7 +70,7 @@ Complete order processing workflow with validation and email generation.
 }
 ```
 
-#### `GET /api/orders/{order_id}/tracking`
+#### `GET /api/requestedorders/{order_id}/tracking`
 Get comprehensive order tracking history for UI display.
 
 **Response:**
@@ -93,22 +93,22 @@ Get comprehensive order tracking history for UI display.
 }
 ```
 
-#### `GET /api/orders/{order_id}/validation-summary`
+#### `GET /api/requestedorders/{order_id}/validation-summary`
 Get order validation summary for UI dashboard.
 
-#### `POST /api/orders/{order_id}/validate`
+#### `POST /api/requestedorders/{order_id}/validate`
 Validate order completeness and identify missing fields.
 
-#### `POST /api/orders/{order_id}/generate-email`
+#### `POST /api/requestedorders/{order_id}/generate-email`
 Generate draft email for missing information.
 
-#### `POST /api/orders/{order_id}/parse-file`
+#### `POST /api/requestedorders/{order_id}/parse-file`
 Parse order file with enhanced parser.
 
-#### `GET /api/orders/{order_id}/emails`
+#### `GET /api/requestedorders/{order_id}/emails`
 Get all emails related to an order.
 
-#### `GET /api/orders/tracking/dashboard`
+#### `GET /api/requestedorders/tracking/dashboard`
 Get tracking dashboard data for all orders.
 
 ## Logging and Tracking

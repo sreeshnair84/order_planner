@@ -40,7 +40,7 @@ const OrderCreationPage = () => {
     ['orders', statusFilter],
     () => orderService.getOrders({ status: statusFilter || undefined }),
     {
-      refetchInterval: 30000,
+      refetchInterval: 300000,
     }
   );
 

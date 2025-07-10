@@ -240,15 +240,15 @@ const ActionModal = ({ action, orderId, onClose, onSuccess }) => {
 
       switch (action.type) {
         case 'correct_missing_fields':
-          endpoint = `/api/orders/${orderId}/correct-missing-fields`;
+          endpoint = `/api/requestedorders/${orderId}/correct-missing-fields`;
           payload = { corrections: formData };
           break;
         case 'correct_validation_errors':
-          endpoint = `/api/orders/${orderId}/correct-validation-errors`;
+          endpoint = `/api/requestedorders/${orderId}/correct-validation-errors`;
           payload = { corrections: formData };
           break;
         case 'resend_email':
-          endpoint = `/api/orders/${orderId}/resend-email`;
+          endpoint = `/api/requestedorders/${orderId}/resend-email`;
           payload = { 
             email_id: action.data.id,
             recipient: formData.recipient,

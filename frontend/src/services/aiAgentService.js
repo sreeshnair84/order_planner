@@ -37,13 +37,13 @@ class AIAgentService {
 
   // Get all threads for an order
   async getOrderThreads(orderId) {
-    const response = await this.api.get(`/api/ai-agent/orders/${orderId}/threads`);
+    const response = await this.api.get(`/api/ai-agent/requestedorders/${orderId}/threads`);
     return response.data;
   }
 
   // Process order with AI (convenience method)
   async processOrderWithAI(orderId) {
-    const response = await this.api.post(`/api/ai-agent/orders/${orderId}/process-with-ai`);
+    const response = await this.api.post(`/api/ai-agent/requestedorders/${orderId}/process-with-ai`);
     return response.data;
   }
 

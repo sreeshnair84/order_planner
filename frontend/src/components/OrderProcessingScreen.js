@@ -45,7 +45,7 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
     () => orderService.getOrderDetails(orderId),
     {
       enabled: !!orderId,
-      refetchInterval: 10000, // Refresh every 10 seconds
+      refetchInterval: 600000, // Refresh every 10 minutes
     }
   );
 
@@ -54,7 +54,7 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
     () => aiAgentService.getOrderThreads(orderId),
     {
       enabled: !!orderId,
-      refetchInterval: 5000, // Refresh every 5 seconds
+      refetchInterval: 300000, // Refresh every 5 minutes
     }
   );
 
@@ -63,7 +63,7 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
     () => aiAgentService.getThreadState(selectedThread),
     {
       enabled: !!selectedThread,
-      refetchInterval: 3000, // Refresh every 3 seconds
+      refetchInterval: 300000, // Refresh every 3 seconds
     }
   );
 
@@ -72,7 +72,7 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
     () => orderService.getOrderTracking(orderId),
     {
       enabled: !!orderId,
-      refetchInterval: 5000,
+      refetchInterval: 300000,
     }
   );
 
@@ -81,7 +81,7 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
     () => orderService.getEmailCommunications(orderId),
     {
       enabled: !!orderId,
-      refetchInterval: 10000,
+      refetchInterval: 300000,
     }
   );
 
@@ -90,7 +90,7 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
     () => orderService.getOrderSKUItems(orderId),
     {
       enabled: !!orderId,
-      refetchInterval: 10000,
+      refetchInterval: 300000,
     }
   );
 
@@ -530,7 +530,7 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
                 </button>
                 
                 <button
-                  onClick={() => window.open(`/api/orders/${orderId}/download`, '_blank')}
+                  onClick={() => window.open(`/api/requestedorders/${orderId}/download`, '_blank')}
                   className="flex flex-col items-center p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <Download className="h-8 w-8 text-green-500 mb-2" />
@@ -1305,7 +1305,7 @@ const OrderProcessingScreen = ({ orderId, onClose }) => {
                           <button
                             onClick={() => {
                               // Download original file for reference
-                              window.open(`/api/orders/${orderId}/download-original`, '_blank');
+                              window.open(`/api/requestedorders/${orderId}/download-original`, '_blank');
                             }}
                             className="flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
                           >

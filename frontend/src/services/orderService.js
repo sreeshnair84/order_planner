@@ -10,7 +10,7 @@ export const orderService = {
         formData.append('special_instructions', metadata.special_instructions);
       }
 
-      const response = await api.post('/orders/upload', formData, {
+      const response = await api.post('/requestedorders/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -23,7 +23,7 @@ export const orderService = {
 
   async getOrders(params = {}) {
     try {
-      const response = await api.get('/orders', { params });
+      const response = await api.get('/requestedorders/all', { params });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -32,7 +32,7 @@ export const orderService = {
 
   async getOrder(orderId) {
     try {
-      const response = await api.get(`/orders/${orderId}`);
+      const response = await api.get(`/requestedorders/${orderId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -41,7 +41,7 @@ export const orderService = {
 
   async getOrderDetails(orderId) {
     try {
-      const response = await api.get(`/orders/${orderId}/details`);
+      const response = await api.get(`/requestedorders/${orderId}/details`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -50,7 +50,7 @@ export const orderService = {
 
   async processOrder(orderId) {
     try {
-      const response = await api.post(`/orders/${orderId}/process`);
+      const response = await api.post(`/requestedorders/${orderId}/process`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -59,7 +59,7 @@ export const orderService = {
 
   async cancelOrder(orderId) {
     try {
-      const response = await api.delete(`/orders/${orderId}`);
+      const response = await api.delete(`/requestedorders/${orderId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -77,7 +77,7 @@ export const orderService = {
 
   async getEmailCommunications(orderId) {
     try {
-      const response = await api.get(`/orders/${orderId}/emails`);
+      const response = await api.get(`/requestedorders/${orderId}/emails`);
       return response.data;
     } catch (error) {
       // Fallback to empty array if endpoint doesn't exist yet
@@ -94,7 +94,7 @@ export const orderService = {
       formData.append('correction_type', correctionType);
       formData.append('reference_email_id', referenceEmailId);
 
-      const response = await api.post('/orders/upload-correction', formData, {
+      const response = await api.post('/requestedorders/upload-correction', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -107,7 +107,7 @@ export const orderService = {
 
   async downloadOriginalFile(orderId) {
     try {
-      const response = await api.get(`/orders/${orderId}/download-original`, {
+      const response = await api.get(`/requestedorders/${orderId}/download-original`, {
         responseType: 'blob',
       });
       return response.data;
@@ -137,7 +137,7 @@ export const orderService = {
   // Enhanced order processing endpoints
   async getProcessingStatus(orderId) {
     try {
-      const response = await api.get(`/orders/${orderId}/processing-status`);
+      const response = await api.get(`/requestedorders/${orderId}/processing-status`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -146,7 +146,7 @@ export const orderService = {
 
   async getProcessingSteps(orderId) {
     try {
-      const response = await api.get(`/orders/${orderId}/processing-steps`);
+      const response = await api.get(`/requestedorders/${orderId}/processing-steps`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -155,7 +155,7 @@ export const orderService = {
 
   async getOrderEmails(orderId) {
     try {
-      const response = await api.get(`/orders/${orderId}/emails`);
+      const response = await api.get(`/requestedorders/${orderId}/emails`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -164,7 +164,7 @@ export const orderService = {
 
   async getUserActions(orderId) {
     try {
-      const response = await api.get(`/orders/${orderId}/user-actions`);
+      const response = await api.get(`/requestedorders/${orderId}/user-actions`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -173,7 +173,7 @@ export const orderService = {
 
   async sendOrderEmail(orderId, emailData) {
     try {
-      const response = await api.post(`/orders/${orderId}/send-email`, emailData);
+      const response = await api.post(`/requestedorders/${orderId}/send-email`, emailData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -182,7 +182,7 @@ export const orderService = {
 
   async approveEmail(orderId, emailId) {
     try {
-      const response = await api.post(`/orders/${orderId}/emails/${emailId}/approve`);
+      const response = await api.post(`/requestedorders/${orderId}/emails/${emailId}/approve`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -191,7 +191,7 @@ export const orderService = {
 
   async correctMissingInfo(orderId, corrections) {
     try {
-      const response = await api.post(`/orders/${orderId}/correct-info`, corrections);
+      const response = await api.post(`/requestedorders/${orderId}/correct-info`, corrections);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -200,7 +200,7 @@ export const orderService = {
 
   async regenerateEmail(orderId, emailType = 'missing_info') {
     try {
-      const response = await api.post(`/orders/${orderId}/regenerate-email`, { email_type: emailType });
+      const response = await api.post(`/requestedorders/${orderId}/regenerate-email`, { email_type: emailType });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -209,7 +209,7 @@ export const orderService = {
 
   async retryStep(orderId, stepId) {
     try {
-      const response = await api.post(`/orders/${orderId}/retry-step`, { step: stepId });
+      const response = await api.post(`/requestedorders/${orderId}/retry-step`, { step: stepId });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -218,7 +218,7 @@ export const orderService = {
 
   async getValidationSummary(orderId) {
     try {
-      const response = await api.get(`/orders/${orderId}/validation-summary`);
+      const response = await api.get(`/requestedorders/${orderId}/validation-summary`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -229,7 +229,7 @@ export const orderService = {
   async reprocessOrder(orderId, newOrderId = null) {
     try {
       const payload = newOrderId ? { new_order_id: newOrderId } : {};
-      const response = await api.post(`/orders/${orderId}/reprocess`, payload);
+      const response = await api.post(`/requestedorders/${orderId}/reprocess`, payload);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -238,7 +238,7 @@ export const orderService = {
 
   async correctOrder(orderId, corrections) {
     try {
-      const response = await api.post(`/orders/${orderId}/correct`, corrections);
+      const response = await api.post(`/requestedorders/${orderId}/correct`, corrections);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -247,7 +247,7 @@ export const orderService = {
 
   async downloadOrderReport(orderId, format = 'pdf') {
     try {
-      const response = await api.get(`/orders/${orderId}/download?format=${format}`, {
+      const response = await api.get(`/requestedorders/${orderId}/download?format=${format}`, {
         responseType: 'blob'
       });
       return response.data;
@@ -258,7 +258,7 @@ export const orderService = {
 
   async getOrderSKUItems(orderId) {
     try {
-      const response = await api.get(`/orders/${orderId}/sku-details`);
+      const response = await api.get(`/requestedorders/${orderId}/sku-details`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -267,7 +267,7 @@ export const orderService = {
 
   async downloadOrderData(orderId, format = 'csv') {
     try {
-      const response = await api.get(`/orders/${orderId}/download?format=${format}`, {
+      const response = await api.get(`/requestedorders/${orderId}/download?format=${format}`, {
         responseType: 'blob'
       });
       return response.data;

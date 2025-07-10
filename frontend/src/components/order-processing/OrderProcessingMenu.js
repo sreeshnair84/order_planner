@@ -32,7 +32,7 @@ const OrderProcessingMenu = ({ orderId, onClose }) => {
   const loadProcessingSteps = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/orders/${orderId}/processing-steps`, {
+      const response = await fetch(`/api/requestedorders/${orderId}/processing-steps`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       
@@ -86,19 +86,19 @@ const OrderProcessingMenu = ({ orderId, onClose }) => {
 
   const getActionEndpoint = (action, stepId) => {
     const endpoints = {
-      'restart': `/api/orders/${orderId}/restart-step`,
-      'retry': `/api/orders/${orderId}/retry-step`,
-      'skip': `/api/orders/${orderId}/skip-step`,
-      'pause': `/api/orders/${orderId}/pause-step`,
-      'resume': `/api/orders/${orderId}/resume-step`,
-      'view_details': `/api/orders/${orderId}/step-details`,
-      'edit_params': `/api/orders/${orderId}/edit-step-params`,
-      'generate_email': `/api/orders/${orderId}/generate-email`,
-      'send_email': `/api/orders/${orderId}/send-email`,
-      'view_logs': `/api/orders/${orderId}/step-logs`,
-      'export_data': `/api/orders/${orderId}/export-step-data`
+      'restart': `/api/requestedorders/${orderId}/restart-step`,
+      'retry': `/api/requestedorders/${orderId}/retry-step`,
+      'skip': `/api/requestedorders/${orderId}/skip-step`,
+      'pause': `/api/requestedorders/${orderId}/pause-step`,
+      'resume': `/api/requestedorders/${orderId}/resume-step`,
+      'view_details': `/api/requestedorders/${orderId}/step-details`,
+      'edit_params': `/api/requestedorders/${orderId}/edit-step-params`,
+      'generate_email': `/api/requestedorders/${orderId}/generate-email`,
+      'send_email': `/api/requestedorders/${orderId}/send-email`,
+      'view_logs': `/api/requestedorders/${orderId}/step-logs`,
+      'export_data': `/api/requestedorders/${orderId}/export-step-data`
     };
-    return endpoints[action] || `/api/orders/${orderId}/generic-action`;
+    return endpoints[action] || `/api/requestedorders/${orderId}/generic-action`;
   };
 
   const getStepIcon = (stepType) => {

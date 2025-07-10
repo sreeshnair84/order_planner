@@ -94,7 +94,7 @@ python add_processing_remarks_column.py
 
 ### Get SKU Items for Order
 ```
-GET /api/orders/{order_id}/sku-details
+GET /api/requestedorders/{order_id}/sku-details
 ```
 
 Returns array of SKU items with processing remarks:

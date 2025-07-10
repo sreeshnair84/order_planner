@@ -12,15 +12,40 @@ logging.getLogger('sqlalchemy.dialects').setLevel(logging.ERROR)
 logging.getLogger('sqlalchemy.pool').setLevel(logging.ERROR)
 logging.getLogger('sqlalchemy.orm').setLevel(logging.ERROR)
 
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer
+from fastapi.responses import RedirectResponse
 from contextlib import asynccontextmanager
 from app.database.connection import init_db
-from app.api import auth, orders, tracking, files, trips, logistics, order_processing, management, manufacturers, email_management, ai_agent, enhanced_order_processing
+from app.api import auth, orders, tracking, files, trips, logistics, management, manufacturers, email_management, ai_agent, enhanced_order_processing
 from app.utils.config import settings
+import os
 
 logger = logging.getLogger(__name__)
+
+# HTTPS Redirect Middleware
+class HTTPSRedirectMiddleware:
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http":
+            request = Request(scope, receive)
+            
+            # Check if we're running in Azure Container Apps and request is HTTP
+            if (
+                request.url.scheme == "http" 
+                and request.headers.get("host", "").endswith(".azurecontainerapps.io")
+                and os.getenv("ENVIRONMENT", "development") == "production"
+            ):
+                # Redirect to HTTPS version
+                https_url = str(request.url).replace("http://", "https://", 1)
+                response = RedirectResponse(url=https_url, status_code=307)
+                await response(scope, receive, send)
+                return
+        
+        await self.app(scope, receive, send)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -38,6 +63,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Add HTTPS redirect middleware first (only in production)
+if os.getenv("ENVIRONMENT", "development") == "production":
+    app.add_middleware(HTTPSRedirectMiddleware)
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -52,8 +81,7 @@ security = HTTPBearer()
 
 # Include routers
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
-app.include_router(orders.router, prefix="/api/orders", tags=["Orders"])
-app.include_router(order_processing.router, tags=["Order Processing"])
+app.include_router(orders.router, prefix="/api/requestedorders", tags=["Orders & Order Processing"])
 app.include_router(tracking.router, prefix="/api/tracking", tags=["Tracking"])
 app.include_router(files.router, prefix="/api/files", tags=["Files"])
 app.include_router(trips.router, prefix="/api/trips", tags=["Trip Optimization"])

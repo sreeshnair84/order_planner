@@ -4,7 +4,7 @@ export const orderProcessingService = {
   // Order processing unified
   async getOrderSummaryUnified(orderId) {
     try {
-      const response = await api.get(`/orders/${orderId}/summary-unified`);
+      const response = await api.get(`/requestedorders/${orderId}/summary-unified`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -13,7 +13,7 @@ export const orderProcessingService = {
 
   async getProcessingMethods() {
     try {
-      const response = await api.get('/orders/processing/methods');
+      const response = await api.get('/requestedorders/processing/methods');
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -22,7 +22,7 @@ export const orderProcessingService = {
 
   async processOrderUnified(orderId, options = {}) {
     try {
-      const response = await api.post(`/orders/${orderId}/process-unified`, options);
+      const response = await api.post(`/requestedorders/${orderId}/process-unified`, options);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -31,7 +31,7 @@ export const orderProcessingService = {
 
   async processOrderStep(orderId, stepData) {
     try {
-      const response = await api.post(`/orders/${orderId}/process-step`, stepData);
+      const response = await api.post(`/requestedorders/${orderId}/process-step`, stepData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -40,7 +40,7 @@ export const orderProcessingService = {
 
   async retryOrderStep(orderId, stepData) {
     try {
-      const response = await api.post(`/orders/${orderId}/retry-step`, stepData);
+      const response = await api.post(`/requestedorders/${orderId}/retry-step`, stepData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -50,7 +50,7 @@ export const orderProcessingService = {
   // Order actions
   async correctMissingFields(orderId, corrections) {
     try {
-      const response = await api.post(`/orders/${orderId}/correct-missing-fields`, { corrections });
+      const response = await api.post(`/requestedorders/${orderId}/correct-missing-fields`, { corrections });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -59,7 +59,7 @@ export const orderProcessingService = {
 
   async correctValidationErrors(orderId, corrections) {
     try {
-      const response = await api.post(`/orders/${orderId}/correct-validation-errors`, { corrections });
+      const response = await api.post(`/requestedorders/${orderId}/correct-validation-errors`, { corrections });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -68,7 +68,7 @@ export const orderProcessingService = {
 
   async resendEmail(orderId, emailData) {
     try {
-      const response = await api.post(`/orders/${orderId}/resend-email`, emailData);
+      const response = await api.post(`/requestedorders/${orderId}/resend-email`, emailData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -78,7 +78,7 @@ export const orderProcessingService = {
   // User actions
   async getUserActions(orderId) {
     try {
-      const response = await api.get(`/orders/${orderId}/user-actions`);
+      const response = await api.get(`/requestedorders/${orderId}/user-actions`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -99,7 +99,7 @@ export const orderProcessingService = {
         });
       }
 
-      const response = await api.post(`/orders/${orderId}/complete-user-action`, formData, {
+      const response = await api.post(`/requestedorders/${orderId}/complete-user-action`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -112,7 +112,7 @@ export const orderProcessingService = {
 
   async skipUserAction(orderId, actionId, params = {}) {
     try {
-      const response = await api.post(`/orders/${orderId}/skip-user-action`, { actionId, ...params });
+      const response = await api.post(`/requestedorders/${orderId}/skip-user-action`, { actionId, ...params });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -121,7 +121,7 @@ export const orderProcessingService = {
 
   async deferUserAction(orderId, actionId, params = {}) {
     try {
-      const response = await api.post(`/orders/${orderId}/defer-user-action`, { actionId, ...params });
+      const response = await api.post(`/requestedorders/${orderId}/defer-user-action`, { actionId, ...params });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -131,7 +131,7 @@ export const orderProcessingService = {
   // Order status and metrics
   async getOrderStatus(orderId) {
     try {
-      const response = await api.get(`/orders/${orderId}/status`);
+      const response = await api.get(`/requestedorders/${orderId}/status`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -140,7 +140,7 @@ export const orderProcessingService = {
 
   async getOrderProcessingMetrics(orderId) {
     try {
-      const response = await api.get(`/orders/${orderId}/processing-metrics`);
+      const response = await api.get(`/requestedorders/${orderId}/processing-metrics`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -149,7 +149,7 @@ export const orderProcessingService = {
 
   async getOrderNotifications(orderId) {
     try {
-      const response = await api.get(`/orders/${orderId}/notifications`);
+      const response = await api.get(`/requestedorders/${orderId}/notifications`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -158,7 +158,7 @@ export const orderProcessingService = {
 
   async getValidationSummary(orderId) {
     try {
-      const response = await api.get(`/orders/${orderId}/validation-summary`);
+      const response = await api.get(`/requestedorders/${orderId}/validation-summary`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -168,7 +168,7 @@ export const orderProcessingService = {
   // Email management
   async approveEmail(orderId, emailId) {
     try {
-      const response = await api.post(`/orders/${orderId}/emails/${emailId}/approve`);
+      const response = await api.post(`/requestedorders/${orderId}/emails/${emailId}/approve`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -177,7 +177,7 @@ export const orderProcessingService = {
 
   async sendEmail(orderId, emailData) {
     try {
-      const response = await api.post(`/orders/${orderId}/send-email`, emailData);
+      const response = await api.post(`/requestedorders/${orderId}/send-email`, emailData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -186,7 +186,7 @@ export const orderProcessingService = {
 
   async editEmail(orderId, emailId, emailData) {
     try {
-      const response = await api.put(`/orders/${orderId}/emails/${emailId}`, emailData);
+      const response = await api.put(`/requestedorders/${orderId}/emails/${emailId}`, emailData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -195,7 +195,7 @@ export const orderProcessingService = {
 
   async deleteEmail(orderId, emailId) {
     try {
-      const response = await api.delete(`/orders/${orderId}/emails/${emailId}`);
+      const response = await api.delete(`/requestedorders/${orderId}/emails/${emailId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -205,7 +205,7 @@ export const orderProcessingService = {
   // Validation and reprocessing
   async validateOrder(orderId) {
     try {
-      const response = await api.post(`/orders/${orderId}/validate`);
+      const response = await api.post(`/requestedorders/${orderId}/validate`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -214,7 +214,7 @@ export const orderProcessingService = {
 
   async generateEmail(orderId) {
     try {
-      const response = await api.post(`/orders/${orderId}/generate-email`);
+      const response = await api.post(`/requestedorders/${orderId}/generate-email`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -223,7 +223,7 @@ export const orderProcessingService = {
 
   async parseFile(orderId) {
     try {
-      const response = await api.post(`/orders/${orderId}/parse-file`);
+      const response = await api.post(`/requestedorders/${orderId}/parse-file`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -233,7 +233,7 @@ export const orderProcessingService = {
   // Order processing control
   async restartFromCheckpoint(orderId, checkpoint) {
     try {
-      const response = await api.post(`/orders/${orderId}/restart-checkpoint`, { checkpoint });
+      const response = await api.post(`/requestedorders/${orderId}/restart-checkpoint`, { checkpoint });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -243,10 +243,10 @@ export const orderProcessingService = {
   async retriggerJob(orderId, jobType) {
     try {
       const endpoint = {
-        'file_parsing': `/orders/${orderId}/parse-file`,
-        'validation': `/orders/${orderId}/validate`,
-        'email_generation': `/orders/${orderId}/generate-email`,
-        'full_processing': `/orders/${orderId}/process`
+        'file_parsing': `/requestedorders/${orderId}/parse-file`,
+        'validation': `/requestedorders/${orderId}/validate`,
+        'email_generation': `/requestedorders/${orderId}/generate-email`,
+        'full_processing': `/requestedorders/${orderId}/process`
       }[jobType];
 
       const response = await api.post(endpoint);
@@ -258,7 +258,7 @@ export const orderProcessingService = {
 
   async executeQuickAction(orderId, action) {
     try {
-      const response = await api.post(`/orders/${orderId}/${action}`);
+      const response = await api.post(`/requestedorders/${orderId}/${action}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

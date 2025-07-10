@@ -4,7 +4,7 @@ export const tripPlanningService = {
   // Get available orders for trip planning
   async getAvailableOrders() {
     try {
-      const response = await api.get('/trips/orders');
+      const response = await api.get('/trips/requestedorders');
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

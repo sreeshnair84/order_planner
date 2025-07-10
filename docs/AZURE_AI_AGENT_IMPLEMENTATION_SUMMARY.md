@@ -55,7 +55,7 @@ Successfully implemented a comprehensive order processing agent system using Azu
 - `POST /api/ai-agent/threads` - Create new agent threads
 - `GET /api/ai-agent/threads/{thread_id}` - Get thread state
 - `POST /api/ai-agent/threads/{thread_id}/run` - Run agent on thread
-- `GET /api/ai-agent/orders/{order_id}/threads` - List order threads
+- `GET /api/ai-agent/requestedorders/{order_id}/threads` - List order threads
 
 ### 4. Frontend Integration (`frontend/src/components/OrderProcessingScreen.js`)
 

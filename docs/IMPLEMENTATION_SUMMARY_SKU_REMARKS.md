@@ -58,7 +58,7 @@ Successfully implemented a comprehensive SKU-level processing remarks feature th
 
 ✅ **Service Integration (`frontend/src/services/orderService.js`)**
 - Added `getOrderSKUItems()` method to fetch detailed SKU item data
-- Connects to existing `/api/orders/{order_id}/sku-details` endpoint
+- Connects to existing `/api/requestedorders/{order_id}/sku-details` endpoint
 
 ### 5. Documentation
 ✅ **Feature Documentation (`docs/SKU_PROCESSING_REMARKS_FEATURE.md`)**

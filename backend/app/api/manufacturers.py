@@ -309,7 +309,7 @@ async def unassign_retailer_from_manufacturer(
     
     return {"message": "Retailer unassigned from manufacturer successfully"}
 
-@router.post("/orders/assign-manufacturer")
+@router.post("/requestedorders/assign-manufacturer")
 async def assign_manufacturer_to_order(
     assignment: OrderAssignmentRequest,
     db: AsyncSession = Depends(get_db),
@@ -369,7 +369,7 @@ async def assign_manufacturer_to_order(
     
     return {"message": "Manufacturer assigned to order successfully", "order_id": str(order.id)}
 
-@router.get("/manufacturers/{manufacturer_id}/orders")
+@router.get("/manufacturers/{manufacturer_id}/requestedorders")
 async def get_manufacturer_orders(
     manufacturer_id: int,
     skip: int = Query(0, ge=0),

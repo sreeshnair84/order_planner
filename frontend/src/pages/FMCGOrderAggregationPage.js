@@ -77,7 +77,7 @@ const FMCGOrderAggregationPage = () => {
     'orders',
     () => orderService.getOrders({ page: 1, per_page: 100 }),
     {
-      refetchInterval: 60000,
+      refetchInterval: 300000,
     }
   );
 
@@ -85,7 +85,7 @@ const FMCGOrderAggregationPage = () => {
     ['dashboard-stats', dateRangeInDays],
     () => analyticsService.getDashboardStats(dateRangeInDays),
     {
-      refetchInterval: 60000,
+      refetchInterval: 300000,
     }
   );
 
@@ -93,7 +93,7 @@ const FMCGOrderAggregationPage = () => {
     ['performance-metrics', dateRangeInDays],
     () => analyticsService.getPerformanceMetrics(dateRangeInDays),
     {
-      refetchInterval: 60000,
+      refetchInterval: 300000,
     }
   );
 
@@ -101,7 +101,7 @@ const FMCGOrderAggregationPage = () => {
     ['status-distribution', dateRangeInDays],
     () => analyticsService.getOrderStatusDistribution(dateRangeInDays),
     {
-      refetchInterval: 60000,
+      refetchInterval: 300000,
     }
   );
 

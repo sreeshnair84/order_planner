@@ -190,11 +190,11 @@ The system uses Azure Managed Identity for secure authentication:
 - `POST /api/auth/refresh` - Token refresh
 
 ### Orders
-- `GET /api/orders` - List orders
-- `POST /api/orders` - Create order
-- `GET /api/orders/{id}` - Get order details
-- `PUT /api/orders/{id}` - Update order
-- `DELETE /api/orders/{id}` - Delete order
+- `GET /api/requestedorders` - List orders
+- `POST /api/requestedorders` - Create order
+- `GET /api/requestedorders/{id}` - Get order details
+- `PUT /api/requestedorders/{id}` - Update order
+- `DELETE /api/requestedorders/{id}` - Delete order
 
 ### File Upload
 - `POST /api/files/upload` - Upload order file

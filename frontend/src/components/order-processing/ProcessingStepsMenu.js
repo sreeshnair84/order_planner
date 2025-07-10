@@ -12,7 +12,7 @@ const ProcessingStepsMenu = ({ orderId, onActionSelect }) => {
 
   const loadProcessingSteps = async () => {
     try {
-      const response = await fetch(`/api/orders/${orderId}/processing-steps`, {
+      const response = await fetch(`/api/requestedorders/${orderId}/processing-steps`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
@@ -28,7 +28,7 @@ const ProcessingStepsMenu = ({ orderId, onActionSelect }) => {
 
   const handleStepAction = async (stepId, action) => {
     try {
-      const response = await fetch(`/api/orders/${orderId}/processing-steps/${stepId}/action`, {
+      const response = await fetch(`/api/requestedorders/${orderId}/processing-steps/${stepId}/action`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

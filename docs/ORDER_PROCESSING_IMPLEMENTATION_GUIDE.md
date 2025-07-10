@@ -58,20 +58,20 @@ import OrderProcessingScreen from '../components/OrderProcessingScreen';
 - `POST /api/ai-agent/threads` - Create AI thread
 - `GET /api/ai-agent/threads/{thread_id}` - Get thread state
 - `POST /api/ai-agent/threads/{thread_id}/run` - Run agent
-- `GET /api/ai-agent/orders/{order_id}/threads` - List order threads
-- `POST /api/ai-agent/orders/{order_id}/process-with-ai` - AI process order
+- `GET /api/ai-agent/requestedorders/{order_id}/threads` - List order threads
+- `POST /api/ai-agent/requestedorders/{order_id}/process-with-ai` - AI process order
 
 **Enhanced Processing API** (`backend/app/api/enhanced_order_processing.py`):
-- `POST /api/orders/{order_id}/reprocess` - Reprocess with new ID
-- `POST /api/orders/{order_id}/correct` - Apply corrections
-- `GET /api/orders/{order_id}/steps` - Get processing steps
-- `GET /api/orders/{order_id}/summary` - Get order summary
+- `POST /api/requestedorders/{order_id}/reprocess` - Reprocess with new ID
+- `POST /api/requestedorders/{order_id}/correct` - Apply corrections
+- `GET /api/requestedorders/{order_id}/steps` - Get processing steps
+- `GET /api/requestedorders/{order_id}/summary` - Get order summary
 
 **Human-in-Loop Email API** (`backend/app/api/human_in_loop_email.py`):
-- `GET /api/orders/{order_id}/emails/pending` - Get pending emails
-- `POST /api/orders/{order_id}/emails/{email_id}/approve` - Approve email
-- `POST /api/orders/{order_id}/emails/retailer-response` - Handle retailer response
-- `POST /api/orders/{order_id}/structured-order/confirm` - Confirm order
+- `GET /api/requestedorders/{order_id}/emails/pending` - Get pending emails
+- `POST /api/requestedorders/{order_id}/emails/{email_id}/approve` - Approve email
+- `POST /api/requestedorders/{order_id}/emails/retailer-response` - Handle retailer response
+- `POST /api/requestedorders/{order_id}/structured-order/confirm` - Confirm order
 
 ### 4. Database Models
 

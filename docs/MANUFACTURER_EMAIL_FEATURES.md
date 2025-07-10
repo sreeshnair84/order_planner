@@ -51,23 +51,23 @@ This implementation adds comprehensive manufacturer assignment capabilities and 
 - `DELETE /manufacturers/{id}` - Delete manufacturer
 - `POST /manufacturers/{id}/assign-retailer/{retailer_id}` - Assign retailer
 - `DELETE /manufacturers/{id}/unassign-retailer/{retailer_id}` - Unassign retailer
-- `GET /manufacturers/{id}/orders` - Get manufacturer's orders
+- `GET /manufacturers/{id}/requestedorders` - Get manufacturer's orders
 
-### Order Assignment (`/api/orders`)
-- `POST /orders/assign-manufacturer` - Assign manufacturer to order
+### Order Assignment (`/api/requestedorders`)
+- `POST /requestedorders/assign-manufacturer` - Assign manufacturer to order
 
 ### Email Management (`/api/emails`)
 - `GET /emails` - List all email communications
 - `GET /emails/{id}` - Get email details
 - `POST /emails/send` - Send new email
 - `POST /emails/{id}/resend` - Resend failed email
-- `GET /orders/{id}/emails` - Get emails for specific order
+- `GET /requestedorders/{id}/emails` - Get emails for specific order
 - `GET /email-types` - Get available email types
 
-### Order Actions (`/api/orders`)
-- `POST /orders/{id}/trigger-processing` - Trigger order processing
-- `POST /orders/consolidate` - Consolidate multiple orders
-- `GET /orders/{id}/actions` - Get available actions for order
+### Order Actions (`/api/requestedorders`)
+- `POST /requestedorders/{id}/trigger-processing` - Trigger order processing
+- `POST /requestedorders/consolidate` - Consolidate multiple orders
+- `GET /requestedorders/{id}/actions` - Get available actions for order
 
 ## Frontend Components
 

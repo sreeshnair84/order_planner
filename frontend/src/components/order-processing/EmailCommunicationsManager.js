@@ -34,7 +34,7 @@ const EmailCommunicationsManager = ({ orderId, onClose }) => {
     setIsLoading(true);
     try {
       const [emailsResponse, templatesResponse] = await Promise.all([
-        fetch(`/api/orders/${orderId}/emails`, {
+        fetch(`/api/requestedorders/${orderId}/emails`, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         }),
         fetch(`/api/email-templates`, {
@@ -91,16 +91,16 @@ const EmailCommunicationsManager = ({ orderId, onClose }) => {
 
   const getEmailActionEndpoint = (action, emailId) => {
     const endpoints = {
-      'send': `/api/orders/${orderId}/send-email`,
-      'resend': `/api/orders/${orderId}/resend-email`,
-      'edit': `/api/orders/${orderId}/edit-email`,
-      'delete': `/api/orders/${orderId}/delete-email`,
-      'duplicate': `/api/orders/${orderId}/duplicate-email`,
-      'view': `/api/orders/${orderId}/view-email`,
-      'download': `/api/orders/${orderId}/download-email`,
-      'generate': `/api/orders/${orderId}/generate-email`
+      'send': `/api/requestedorders/${orderId}/send-email`,
+      'resend': `/api/requestedorders/${orderId}/resend-email`,
+      'edit': `/api/requestedorders/${orderId}/edit-email`,
+      'delete': `/api/requestedorders/${orderId}/delete-email`,
+      'duplicate': `/api/requestedorders/${orderId}/duplicate-email`,
+      'view': `/api/requestedorders/${orderId}/view-email`,
+      'download': `/api/requestedorders/${orderId}/download-email`,
+      'generate': `/api/requestedorders/${orderId}/generate-email`
     };
-    return endpoints[action] || `/api/orders/${orderId}/email-action`;
+    return endpoints[action] || `/api/requestedorders/${orderId}/email-action`;
   };
 
   const openEmailModal = (action, email = null) => {
@@ -420,8 +420,8 @@ const EmailActionModal = ({ action, email, orderId, templates, onClose, onComple
     
     try {
       const endpoint = action === 'generate' 
-        ? `/api/orders/${orderId}/generate-email`
-        : `/api/orders/${orderId}/update-email`;
+        ? `/api/requestedorders/${orderId}/generate-email`
+        : `/api/requestedorders/${orderId}/update-email`;
       
       const response = await fetch(endpoint, {
         method: 'POST',

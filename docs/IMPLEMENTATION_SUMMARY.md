@@ -113,11 +113,11 @@ This document summarizes the major changes implemented to align the Order Manage
 ### 5. API Enhancements ✅
 
 #### New Endpoints
-- `GET /orders/{order_id}/details` - Detailed order with SKU items
-- `GET /orders/{order_id}/sku-details` - SKU-specific information
-- `GET /orders/{order_id}/trip-info` - Trip and logistics information
-- `POST /orders/{order_id}/reschedule` - Reschedule delivery
-- `POST /orders/{order_id}/update-status` - Enhanced status updates
+- `GET /requestedorders/{order_id}/details` - Detailed order with SKU items
+- `GET /requestedorders/{order_id}/sku-details` - SKU-specific information
+- `GET /requestedorders/{order_id}/trip-info` - Trip and logistics information
+- `POST /requestedorders/{order_id}/reschedule` - Reschedule delivery
+- `POST /requestedorders/{order_id}/update-status` - Enhanced status updates
 
 #### Enhanced Response Models
 - **OrderDetailedResponse**: Complete order information

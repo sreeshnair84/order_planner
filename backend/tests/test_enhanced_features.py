@@ -106,7 +106,7 @@ def sample_sku_data():
 
 def test_create_order_with_enhanced_features(auth_headers, sample_order_data):
     """Test creating an order with enhanced features"""
-    response = client.post("/api/orders/", json=sample_order_data, headers=auth_headers)
+    response = client.post("/api/requestedorders/", json=sample_order_data, headers=auth_headers)
     assert response.status_code == 200
     
     order = response.json()
@@ -119,13 +119,13 @@ def test_create_order_with_enhanced_features(auth_headers, sample_order_data):
 def test_add_sku_items_to_order(auth_headers, sample_order_data, sample_sku_data):
     """Test adding SKU items to an order"""
     # First create an order
-    order_response = client.post("/api/orders/", json=sample_order_data, headers=auth_headers)
+    order_response = client.post("/api/requestedorders/", json=sample_order_data, headers=auth_headers)
     assert order_response.status_code == 200
     order_id = order_response.json()["id"]
     
     # Add SKU items
     for sku_data in sample_sku_data:
-        sku_response = client.post(f"/api/orders/{order_id}/skus", json=sku_data, headers=auth_headers)
+        sku_response = client.post(f"/api/requestedorders/{order_id}/skus", json=sku_data, headers=auth_headers)
         assert sku_response.status_code == 200
         
         sku_item = sku_response.json()
@@ -136,15 +136,15 @@ def test_add_sku_items_to_order(auth_headers, sample_order_data, sample_sku_data
 def test_get_order_details(auth_headers, sample_order_data, sample_sku_data):
     """Test getting detailed order information"""
     # Create order with SKU items
-    order_response = client.post("/api/orders/", json=sample_order_data, headers=auth_headers)
+    order_response = client.post("/api/requestedorders/", json=sample_order_data, headers=auth_headers)
     order_id = order_response.json()["id"]
     
     # Add SKU items
     for sku_data in sample_sku_data:
-        client.post(f"/api/orders/{order_id}/skus", json=sku_data, headers=auth_headers)
+        client.post(f"/api/requestedorders/{order_id}/skus", json=sku_data, headers=auth_headers)
     
     # Get detailed order info
-    response = client.get(f"/api/orders/{order_id}/details", headers=auth_headers)
+    response = client.get(f"/api/requestedorders/{order_id}/details", headers=auth_headers)
     assert response.status_code == 200
     
     order_details = response.json()
@@ -156,7 +156,7 @@ def test_get_order_details(auth_headers, sample_order_data, sample_sku_data):
 def test_status_transitions(auth_headers, sample_order_data):
     """Test order status transitions"""
     # Create order
-    order_response = client.post("/api/orders/", json=sample_order_data, headers=auth_headers)
+    order_response = client.post("/api/requestedorders/", json=sample_order_data, headers=auth_headers)
     order_id = order_response.json()["id"]
     
     # Test valid status transitions
@@ -182,7 +182,7 @@ def test_status_transitions(auth_headers, sample_order_data):
 def test_invalid_status_transition(auth_headers, sample_order_data):
     """Test invalid status transitions are rejected"""
     # Create order
-    order_response = client.post("/api/orders/", json=sample_order_data, headers=auth_headers)
+    order_response = client.post("/api/requestedorders/", json=sample_order_data, headers=auth_headers)
     order_id = order_response.json()["id"]
     
     # Try invalid transition (PENDING -> DELIVERED)
@@ -197,7 +197,7 @@ def test_invalid_status_transition(auth_headers, sample_order_data):
 def test_trip_info_management(auth_headers, sample_order_data):
     """Test trip information management"""
     # Create order
-    order_response = client.post("/api/orders/", json=sample_order_data, headers=auth_headers)
+    order_response = client.post("/api/requestedorders/", json=sample_order_data, headers=auth_headers)
     order_id = order_response.json()["id"]
     
     # Add trip info
@@ -209,7 +209,7 @@ def test_trip_info_management(auth_headers, sample_order_data):
         "estimated_delivery": "2024-01-20T14:00:00Z"
     }
     
-    response = client.put(f"/api/orders/{order_id}/trip", json=trip_data, headers=auth_headers)
+    response = client.put(f"/api/requestedorders/{order_id}/trip", json=trip_data, headers=auth_headers)
     assert response.status_code == 200
     
     trip_info = response.json()
@@ -220,7 +220,7 @@ def test_trip_info_management(auth_headers, sample_order_data):
 def test_order_rescheduling(auth_headers, sample_order_data):
     """Test order rescheduling functionality"""
     # Create order
-    order_response = client.post("/api/orders/", json=sample_order_data, headers=auth_headers)
+    order_response = client.post("/api/requestedorders/", json=sample_order_data, headers=auth_headers)
     order_id = order_response.json()["id"]
     
     # Reschedule order
@@ -229,7 +229,7 @@ def test_order_rescheduling(auth_headers, sample_order_data):
         "reason": "Customer requested change"
     }
     
-    response = client.put(f"/api/orders/{order_id}/reschedule", json=reschedule_data, headers=auth_headers)
+    response = client.put(f"/api/requestedorders/{order_id}/reschedule", json=reschedule_data, headers=auth_headers)
     assert response.status_code == 200
     
     updated_order = response.json()

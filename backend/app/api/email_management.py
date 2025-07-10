@@ -191,7 +191,7 @@ async def resend_email(
     
     return {"message": "Email queued for resending"}
 
-@router.post("/orders/{order_id}/trigger-processing")
+@router.post("/requestedorders/{order_id}/trigger-processing")
 async def trigger_order_processing(
     order_id: str,
     background_tasks: BackgroundTasks,
@@ -228,7 +228,7 @@ async def trigger_order_processing(
     
     return {"message": "Order processing triggered", "order_id": str(order.id)}
 
-@router.post("/orders/consolidate")
+@router.post("/requestedorders/consolidate")
 async def consolidate_orders(
     consolidation_request: OrderConsolidationRequest,
     background_tasks: BackgroundTasks,
@@ -283,7 +283,7 @@ async def consolidate_orders(
         "order_count": len(consolidation_request.order_ids)
     }
 
-@router.get("/orders/{order_id}/emails", response_model=List[EmailResponse])
+@router.get("/requestedorders/{order_id}/emails", response_model=List[EmailResponse])
 async def get_order_emails(
     order_id: str,
     db: AsyncSession = Depends(get_db),
@@ -328,7 +328,7 @@ async def get_email_types():
         {"value": "ERROR_NOTIFICATION", "label": "Error Notification"}
     ]
 
-@router.get("/orders/{order_id}/actions")
+@router.get("/requestedorders/{order_id}/actions")
 async def get_order_actions(
     order_id: str,
     db: AsyncSession = Depends(get_db),
